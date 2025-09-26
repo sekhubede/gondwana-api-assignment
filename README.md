@@ -28,10 +28,23 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
 2. Run:
    ```bash
    php -S 0.0.0.0:8080 -t backend/src
-3. Open frontend/index.html to test the UI.
+   ```
+3. Once running, Codespaces will forward port 8080.
+   Open the provided URL, e.g.:
+   ```cpp
+   https://<your-codespace-id>-8080.app.github.dev/
+   ```
+4. Test the Hello World route:
+   ```cpp
+   https://<your-codespace-id>-8080.app.github.dev/
+   ```
+   -> should return **Hello, world!**
 
 ---
-## Features
+## Current Features
+- Basic Slim 4 backend with Hello World endpoint
+
+## Upcoming Features
 - Accepts payload with Unit Name, Arrival, Departure, Occupants, Ages
 - Transforms payload into expected format
 - Calls Gondwana API and returns rates
