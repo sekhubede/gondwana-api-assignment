@@ -28,51 +28,51 @@ class BookingController
     public function calculateRates(Request $request, Response $response): Response
     {
         try {
-            $data = $request->getParsedBody() ?? [];
-            $normalized = $this->transformer->transform($data);
+                $data = $request->getParsedBody() ?? [];
+                $normalized = $this->transformer->transform($data);
 
-            $apiResponse = $this->httpClient->post('Rates.php', [
-                'json' => $normalized
-            ]);
-            
-            $body = $apiResponse->getBody()->getContents();
-            $decoded = json_decode($body, true);
-            $clean = $this->formatter->format($decoded);
+                $apiResponse = $this->httpClient->post('Rates.php', [
+                    'json' => $normalized
+                ]);
+                
+                $body = $apiResponse->getBody()->getContents();
+                $decoded = json_decode($body, true);
+                $clean = $this->formatter->format($decoded);
 
-            $response->getBody()->write(json_encode([
-                'success' => true,
-                'data' => $clean
-            ], JSON_PRETTY_PRINT));
+                $response->getBody()->write(json_encode([
+                    'success' => true,
+                    'data' => $clean
+                ], JSON_PRETTY_PRINT));
 
-            return $response->withHeader('Content-Type', 'application/json');
+                return $response->withHeader('Content-Type', 'application/json');
 
-        } catch (InvalidArgumentException $e) {
-            return $this->errorResponse(
-                $response,
-                400,
-                'Invalid input',
-                $e->getMessage()
-            );
+            } catch (InvalidArgumentException $e) {
+                return $this->errorResponse(
+                    $response,
+                    400,
+                    'Invalid input',
+                    $e->getMessage()
+                );
 
-        } catch (RequestException $e) {
-            return $this->errorResponse(
-                $response,
-                502,
-                'Failed to fetch rates',
-                $e->getMessage()
-            );
+            } catch (RequestException $e) {
+                return $this->errorResponse(
+                    $response,
+                    502,
+                    'Failed to fetch rates',
+                    $e->getMessage()
+                );
 
-        } catch (\Throwable $e) {
-            return $this->errorResponse(
-                $response,
-                500,
-                'Unexpected server error',
-                $e->getMessage()
-            );
-        }
+            } catch (\Throwable $e) {
+                return $this->errorResponse(
+                    $response,
+                    500,
+                    'Unexpected server error',
+                    $e->getMessage()
+                );
+            }
     }
 
-    private function errorResponse(Response $response, int $status, string $error, string $message): Response
+    protected function errorResponse(Response $response, int $status, string $error, string $message): Response
     {
         $response->getBody()->write(json_encode([
             'success' => false,

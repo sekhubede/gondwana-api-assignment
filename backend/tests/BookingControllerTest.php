@@ -143,4 +143,64 @@ class BookingControllerTest extends TestCase
         $this->assertSame(200, $result->getStatusCode());
         $this->assertThat((string)$result->getBody(), $this->stringContains('"mocked":true'));
     }
+
+    public function testReturns502OnRequestException(): void
+    {
+        $mockTransformer = $this->createMock(PayloadTransformer::class);
+        $mockTransformer->method('transform')->willReturn([
+            'Unit Type ID' => -2147483637,
+            'Arrival'      => '2025-10-01',
+            'Departure'    => '2025-10-05',
+            'Guests'       => [['Age Group' => 'Adult']]
+        ]);
+
+        $mockFormatter = $this->createMock(ResponseFormatter::class);
+
+        // Override to simulate RequestException
+        $controller = new class($mockTransformer, $mockFormatter) extends BookingController {
+            public function calculateRates($request, $response): \Psr\Http\Message\ResponseInterface
+            {
+                // Simulate Guzzle RequestException branch
+                return $this->errorResponse($response, 502, 'Failed to fetch rates', 'Simulated RequestException');
+            }
+        };
+
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
+
+        $result = $controller->calculateRates($request, $response);
+
+        $this->assertSame(502, $result->getStatusCode());
+        $this->assertStringContainsString('Failed to fetch rates', (string)$result->getBody());
+    }
+
+    public function testReturns500OnUnexpectedThrowable(): void
+    {
+        $mockTransformer = $this->createMock(PayloadTransformer::class);
+        $mockTransformer->method('transform')->willReturn([
+            'Unit Type ID' => -2147483637,
+            'Arrival'      => '2025-10-01',
+            'Departure'    => '2025-10-05',
+            'Guests'       => [['Age Group' => 'Adult']]
+        ]);
+
+        $mockFormatter = $this->createMock(ResponseFormatter::class);
+
+        // Override to simulate Throwable branch
+        $controller = new class($mockTransformer, $mockFormatter) extends BookingController {
+            public function calculateRates($request, $response): \Psr\Http\Message\ResponseInterface
+            {
+                return $this->errorResponse($response, 500, 'Unexpected server error', 'Simulated Throwable');
+            }
+        };
+
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
+
+        $result = $controller->calculateRates($request, $response);
+
+        $this->assertSame(500, $result->getStatusCode());
+        $this->assertStringContainsString('Unexpected server error', (string)$result->getBody());
+    }
+
 }
