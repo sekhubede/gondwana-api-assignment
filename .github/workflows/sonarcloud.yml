@@ -47,4 +47,6 @@ jobs:
           args: >
             -Dsonar.organization=sekhubede
             -Dsonar.projectKey=sekhubede_gondwana-api-assignment
+            -Dsonar.sources=backend/src
+            -Dsonar.tests=backend/tests
             -Dsonar.php.coverage.reportPaths=coverage.xml
