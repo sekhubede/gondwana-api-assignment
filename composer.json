@@ -31,8 +31,6 @@
     "scripts": {
         "test": "XDEBUG_MODE=coverage phpunit --display-deprecations --coverage-clover=coverage.xml",
         "serve": "php -S localhost:8080 -t backend/public",
-        "check": [
-        "@test"
-    ]
+        "check": "@test"
     }
 }
