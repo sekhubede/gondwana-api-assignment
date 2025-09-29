@@ -8,7 +8,6 @@ class PayloadTransformer
 {
     /**
      * Transform incoming frontend payload into Gondwana API schema.
-     * 
      * @param array $data
      * @return array
      * @throws InvalidArgumentException if input is invalid

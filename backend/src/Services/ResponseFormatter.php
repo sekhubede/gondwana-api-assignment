@@ -5,7 +5,6 @@ class ResponseFormatter
 {
     /**
      * Extraccts a clean response from Gondwana API raw payload.
-     * 
      * @param array $apiResponse
      * @return array
      */
