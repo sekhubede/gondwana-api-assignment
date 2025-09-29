@@ -15,9 +15,10 @@ class BookingController
     private ResponseFormatter $formatter;
     private Client $httpClient;
 
-    public function __construct(PayloadTransformer $transformer)
+    public function __construct(PayloadTransformer $transformer, ResponseFormatter $formatter)
     {
         $this->transformer = $transformer;
+        $this->formatter = $formatter;
         $this->httpClient = new Client([
             'base_uri' => 'https://dev.gondwana-collection.com/Web-Store/Rates/',
             'timeout' => 10.0
@@ -27,9 +28,7 @@ class BookingController
     public function calculateRates(Request $request, Response $response): Response
     {
         try {
-
             $data = $request->getParsedBody() ?? [];
-
             $normalized = $this->transformer->transform($data);
 
             $apiResponse = $this->httpClient->post('Rates.php', [
@@ -38,62 +37,49 @@ class BookingController
             
             $body = $apiResponse->getBody()->getContents();
             $decoded = json_decode($body, true);
-
             $clean = $this->formatter->format($decoded);
 
             $response->getBody()->write(json_encode([
-                'success'   => true,
-                'data'      => $clean
+                'success' => true,
+                'data' => $clean
             ], JSON_PRETTY_PRINT));
 
             return $response->withHeader('Content-Type', 'application/json');
 
         } catch (InvalidArgumentException $e) {
-
-            $error = [
-                'success'   => false,
-                'error'     => 'Invalid input',
-                'message'   => $e->getMessage()
-            ];
-            $response->getBody()->write(json_encode($error, JSON_PRETTY_PRINT));
-            return $response
-                ->withStatus(400)
-                ->withHeader('Content-Type', 'application/json');
+            return $this->errorResponse(
+                $response,
+                400,
+                'Invalid input',
+                $e->getMessage()
+            );
 
         } catch (RequestException $e) {
-            
-            $error = [
-                'success'   => false,
-                'error'     => 'Failed to fetch rates',
-                'message'   => $e->getMessage()
-            ];
-            $response->getBody()->write(json_encode($error, JSON_PRETTY_PRINT));
-            return $response
-                ->withStatus(502)
-                ->withHeader('Content-Type', 'application/json');
+            return $this->errorResponse(
+                $response,
+                502,
+                'Failed to fetch rates',
+                $e->getMessage()
+            );
 
         } catch (\Throwable $e) {
-
-            $error = [
-                'success'   => false,
-                'error'     => 'Unexpected server error',
-                'message'   => $e->getMessage()()
-            ];
-            $response->getBody()->write(json_encode($error, JSON_PRETTY_PRINT));
-            return $response
-                ->withStatus(500)
-                ->withHeader('Content-Type', 'application/json');
+            return $this->errorResponse(
+                $response,
+                500,
+                'Unexpected server error',
+                $e->getMessage()
+            );
         }
     }
 
     private function errorResponse(Response $response, int $status, string $error, string $message): Response
     {
         $response->getBody()->write(json_encode([
-            'success'   => false,
-            'error'     => $error,
-            'message'   => $message
+            'success' => false,
+            'error' => $error,
+            'message' => $message
         ], JSON_PRETTY_PRINT));
 
-        return $response->withStatus($status)->withHeader('Content-Type', 'applicaitn/json');
+        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }

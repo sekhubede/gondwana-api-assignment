@@ -23,6 +23,6 @@
         }
     },
     "scripts": {
-        "test": "XDEBUG_MODE=coverage phpunit --coverage-clover=coverage.xml"
+        "test": "XDEBUG_MODE=coverage phpunit --display-deprecations --coverage-clover=coverage.xml"
     }
 }

@@ -7,7 +7,7 @@ use App\Services\PayloadTransformer;
  */
 class PayloadTransformerTest extends TestCase
 {
-    public function testTransformsPayloadCorrectly()
+    public function testTransformsPayloadCorrectly(): void
     {
         $transformer = new PayloadTransformer();
 
@@ -21,24 +21,101 @@ class PayloadTransformerTest extends TestCase
 
         $result = $transformer->transform($input);
 
-        $this->assertEquals("2025-10-01", $result["Arrival"]);
-        $this->assertEquals("2025-10-05", $result["Departure"]);
-        $this->assertEquals("Adult", $result["Guests"][0]["Age Group"]);
-        $this->assertEquals("Child", $result["Guests"][1]["Age Group"]);
+        $this->assertSame("2025-10-01", $result["Arrival"]);
+        $this->assertSame("2025-10-05", $result["Departure"]);
+        $this->assertSame("Adult", $result["Guests"][0]["Age Group"]);
+        $this->assertSame("Child", $result["Guests"][1]["Age Group"]);
     }
 
-    public function testThrowsExceptionForMissingArrival()
+    public function testThrowsExceptionForMissingArrival(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Missing required field: Arrival");
 
-        $transformer = new PayloadTransformer();
-
-        $input = [
+        (new PayloadTransformer())->transform([
             "Departure" => "05/10/2025",
             "Ages"      => [25, 12]
-        ];
+        ]);
+    }
 
-        $transformer->transform($input);
+    public function testThrowsExceptionForMissingDeparture(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Missing required field: Departure");
+
+        (new PayloadTransformer())->transform([
+            "Arrival" => "01/10/2025",
+            "Ages"    => [25, 12]
+        ]);
+    }
+
+    public function testThrowsExceptionForMissingAges(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Missing required field: Ages");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "01/10/2025",
+            "Departure" => "05/10/2025"
+        ]);
+    }
+
+    public function testThrowsExceptionForInvalidAgesType(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Ages must be an array");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "01/10/2025",
+            "Departure" => "05/10/2025",
+            "Ages"      => "not an array"
+        ]);
+    }
+
+    public function testThrowsExceptionForInvalidDateFormat(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid date format for Arrival");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "2025-10-01", // wrong format
+            "Departure" => "05/10/2025",
+            "Ages"      => [30]
+        ]);
+    }
+
+    public function testThrowsExceptionForArrivalAfterDeparture(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Arrival date must be before departure date");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "05/10/2025",
+            "Departure" => "01/10/2025",
+            "Ages"      => [30]
+        ]);
+    }
+
+    public function testThrowsExceptionForInvalidAge(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid age value");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "01/10/2025",
+            "Departure" => "05/10/2025",
+            "Ages"      => [30, -5]
+        ]);
+    }
+
+    public function testHandlesDefaultUnitTypeId(): void
+    {
+        $result = (new PayloadTransformer())->transform([
+            "Arrival"   => "01/10/2025",
+            "Departure" => "05/10/2025",
+            "Ages"      => [30]
+        ]);
+
+        $this->assertSame(-2147483637, $result["Unit Type ID"]);
     }
 }
