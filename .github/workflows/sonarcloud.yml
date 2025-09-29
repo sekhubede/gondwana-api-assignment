@@ -27,9 +27,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      # Run PHPUnit with coverage
+      # Run PHPUnit (coverage is defined in phpunit.xml.dist)
       - name: Run tests with coverage
-        run: composer test -- --coverage-clover=coverage.xml
+        run: composer test
 
       # Set up JDK (required by SonarCloud scanner)
       - name: Set up JDK 17
