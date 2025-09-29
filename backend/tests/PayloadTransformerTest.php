@@ -2,6 +2,9 @@
 use PHPUnit\Framework\TestCase;
 use App\Services\PayloadTransformer;
 
+/**
+ * @covers \App\Services\PayloadTransformer
+ */
 class PayloadTransformerTest extends TestCase
 {
     public function testTransformsPayloadCorrectly()

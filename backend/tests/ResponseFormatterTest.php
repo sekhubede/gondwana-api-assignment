@@ -2,6 +2,9 @@
 use PHPUnit\Framework\TestCase;
 use App\Services\ResponseFormatter;
 
+/**
+ * @covers \App\Services\ResponseFormatter
+ */
 class ResponseFormatterTest extends TestCase
 {
     public function testFormatsResponseCorrectly()

@@ -4,29 +4,41 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\ResponseFactory;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
-use GuzzleHttp\Psr7\ServerRequest;
+use App\Services\ResponseFormatter;
 
+/**
+ * @covers \App\Controllers\BookingController
+ */
 class BookingControllerTest extends TestCase
 {
+    private ServerRequestFactory $requestFactory;
+    private ResponseFactory $responseFactory;
+
+    protected function setUp(): void
+    {
+        $this->requestFactory = new ServerRequestFactory();
+        $this->responseFactory = new ResponseFactory();
+    }
+
     public function testReturns400OnInvalidPayload()
     {
         $mockTransformer = $this->createMock(PayloadTransformer::class);
         $mockTransformer->method('transform')
-            ->willThrowException(new InvalidArgumentException(("Missing required field: Arrival")));
+            ->willThrowException(new InvalidArgumentException("Missing required field: Arrival"));
 
-            $controller = new BookingController($mockTransformer);
+        $controller = new BookingController($mockTransformer);
 
-            $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
-            $response = (new ResponseFactory())->createResponse();
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
 
-            $result = $controller->calculateRates($request, $response);
+        $result = $controller->calculateRates($request, $response);
 
-            $this->assertEquals(400, $result->getStatusCode());
-            $body = (string) $result->getBody();
-            $this->assertStringContainsString('Invalid input', $body);
+        $this->assertEquals(400, $result->getStatusCode());
+        $body = (string) $result->getBody();
+        $this->assertStringContainsString('Invalid input', $body);
     }
 
-    public function testResturns200OnValidPayload()
+    public function testReturns200OnValidPayload()
     {
         $mockTransformer = $this->createMock(PayloadTransformer::class);
         $mockTransformer->method('transform')
@@ -34,12 +46,10 @@ class BookingControllerTest extends TestCase
                 'Unit Type ID'  => -2147483637,
                 'Arrival'       => '2025-10-01',
                 'Departure'     => '2025-10-05',
-                'Guests'        => [
-                    ['Age Group' => 'Adult']
-                ]
-                ]);
+                'Guests'        => [['Age Group' => 'Adult']]
+            ]);
 
-         $controller = new class($mockTransformer) extends BookingController {
+        $controller = new class($mockTransformer) extends BookingController {
             public function calculateRates($request, $response): \Psr\Http\Message\ResponseInterface
             {
                 $response->getBody()->write(json_encode([
@@ -48,21 +58,20 @@ class BookingControllerTest extends TestCase
                 ]));
                 return $response->withStatus(200)->withHeader('Content-Type', 'application/json');
             }
-         };
+        };
 
-         $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
-         $response = (new ResponseFactory())->createResponse();
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
 
-         $result = $controller->calculateRates($request, $response);
+        $result = $controller->calculateRates($request, $response);
 
-         $this->assertEquals(200, $result->getStatusCode());
-         $body = (string) $result->getBody();
-         $this->assertStringContainsString('"success":true', $body);
+        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertStringContainsString('"success":true', (string)$result->getBody());
     }
 
     public function testReturns500OnApiFailure()
     {
-        $mockTransformer = $this->createMock(\App\Services\PayloadTransformer::class);
+        $mockTransformer = $this->createMock(PayloadTransformer::class);
         $mockTransformer->method('transform')
             ->willReturn([
                 'Unit Type ID'  => -2147483637,
@@ -71,31 +80,29 @@ class BookingControllerTest extends TestCase
                 'Guests'        => [['Age Group' => 'Adult']]
             ]);
 
-        // Override BookingController to throw RequestException
-        $controller = new class($mockTransformer) extends \App\Controllers\BookingController {
+        $controller = new class($mockTransformer) extends BookingController {
             public function calculateRates($request, $response): \Psr\Http\Message\ResponseInterface
             {
                 $response->getBody()->write(json_encode([
-                    'error'     => 'Failed to fetch rates',
-                    'message'   => 'Simulated API failure'
+                    'error'   => 'Failed to fetch rates',
+                    'message' => 'Simulated API failure'
                 ]));
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
         };
 
-        $request = (new \Slim\Psr7\Factory\ServerRequestFactory())->createServerRequest('POST', '/rates');
-        $response = (new \Slim\Psr7\Factory\ResponseFactory())->createResponse();
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
 
         $result = $controller->calculateRates($request, $response);
 
         $this->assertEquals(500, $result->getStatusCode());
-        $body = (string) $result->getBody();
-        $this->assertStringContainsString('Failed to fetch rates', $body);
+        $this->assertStringContainsString('Failed to fetch rates', (string)$result->getBody());
     }
 
     public function testUsesResponseFormatter()
     {
-        $mockTransformer = $this->createMock(\App\Services\PayloadTransformer::class);
+        $mockTransformer = $this->createMock(PayloadTransformer::class);
         $mockTransformer->method('transform')
             ->willReturn([
                 'Unit Type ID'  => -2147483637,
@@ -104,12 +111,12 @@ class BookingControllerTest extends TestCase
                 'Guests'        => [['Age Group' => 'Adult']]
             ]);
 
-        $mockFormatter = $this->createMock(\App\Services\ResponseFormatter::class);
+        $mockFormatter = $this->createMock(ResponseFormatter::class);
         $mockFormatter->expects($this->once())
             ->method('format')
             ->willReturn(['mocked' => true]);
 
-        $controller = new class($mockTransformer, $mockFormatter) extends \App\Controllers\BookingController {
+        $controller = new class($mockTransformer, $mockFormatter) extends BookingController {
             private $formatter;
             public function __construct($transformer, $formatter)
             {
@@ -124,13 +131,12 @@ class BookingControllerTest extends TestCase
             }
         };
 
-        $request = (new \Slim\Psr7\Factory\ServerRequestFactory())->createServerRequest('POST', '/rates');
-        $response = (new \Slim\Psr7\Factory\ResponseFactory())->createResponse();
+        $request = $this->requestFactory->createServerRequest('POST', '/rates');
+        $response = $this->responseFactory->createResponse();
 
         $result = $controller->calculateRates($request, $response);
 
         $this->assertEquals(200, $result->getStatusCode());
-        $body = (string) $result->getBody();
-        $this->assertStringContainsString('mocked', $body);
+        $this->assertStringContainsString('mocked', (string)$result->getBody());
     }
 }
