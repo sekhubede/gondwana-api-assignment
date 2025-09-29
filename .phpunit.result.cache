@@ -1,0 +1,1 @@
+{"version":2,"defects":{"PayloadTransformerTest::testTransformsPayloadCorrectly":8},"times":{"BookingControllerTest::testReturns400OnInvalidPayload":0.014,"BookingControllerTest::testResturns200OnValidPayload":0,"PayloadTransformerTest::testTransformsPayloadCorrectly":0,"PayloadTransformerTest::testThrowsExceptionForMissingArrival":0}}
