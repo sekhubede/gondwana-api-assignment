@@ -9,18 +9,19 @@ class ResponseFormatter
      * @param array $apiResponse
      * @return array
      */
-    public function format(array $apiResponse): array
+    public function format(array $response): array
     {
         return [
-            'totalCharge'       => $apiResponse['Total Charge'] ?? 0,
-            'roomsAvailable'    => $apiResponse['Rooms'] ?? 0,
-            'rates'             => array_map(function ($leg) {
+            'Location ID'      => $response['Location ID'] ?? null,
+            'Total Charge'     => $response['Total Charge'] ?? null,
+            'Extras Charge'    => $response['Extras Charge'] ?? null,
+            'Booking Group ID' => $response['Booking Group ID'] ?? null,
+            'Legs' => array_map(function ($leg) {
                 return [
-                    'description'   => $leg['Special Rates Description'] ?? 'N/A',
-                    'price'         => $leg['Effective Average Daily Rate'] ?? 0,
-                    'category'      => $leg['Category'] ?? 'Unknown'
+                    'Total Charge' => $leg['Total Charge'] ?? null,
+                    'Guests'       => $leg['Guests'] ?? []
                 ];
-            }, $apiResponse['Legs'] ?? [])
+            }, $response['Legs'] ?? [])
         ];
     }
 }
