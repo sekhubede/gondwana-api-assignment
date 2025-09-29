@@ -15,13 +15,16 @@ class BookingController
     private ResponseFormatter $formatter;
     private Client $httpClient;
 
-    public function __construct(PayloadTransformer $transformer, ResponseFormatter $formatter)
-    {
+    public function __construct(
+        PayloadTransformer $transformer,
+        ResponseFormatter $formatter,
+        ?Client $httpClient = null
+    ) {
         $this->transformer = $transformer;
-        $this->formatter = $formatter;
-        $this->httpClient = new Client([
+        $this->formatter   = $formatter;
+        $this->httpClient  = $httpClient ?? new Client([
             'base_uri' => 'https://dev.gondwana-collection.com/Web-Store/Rates/',
-            'timeout' => 10.0
+            'timeout'  => 10.0
         ]);
     }
 
@@ -80,16 +83,5 @@ class BookingController
         return $response
             ->withStatus($payload['status'])
             ->withHeader('Content-Type', 'application/json');
-    }
-
-    protected function errorResponse(Response $response, int $status, string $error, string $message): Response
-    {
-        $response->getBody()->write(json_encode([
-            'success' => false,
-            'error' => $error,
-            'message' => $message
-        ], JSON_PRETTY_PRINT));
-
-        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }
