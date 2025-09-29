@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1759162880">
-  <project timestamp="1759162880" name="Clover Coverage">
+<coverage generated="1759175410">
+  <project timestamp="1759175410" name="Clover Coverage">
     <package name="App\Controllers">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Controllers/BookingController.php">
         <class name="App\Controllers\BookingController" namespace="App\Controllers">
@@ -123,39 +123,6 @@
         <metrics loc="34" ncloc="28" classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="12" coveredstatements="12" elements="13" coveredelements="13"/>
       </file>
     </package>
-    <file name="/workspaces/gondwana-api-assignment/backend/src/index.php">
-      <line num="10" type="stmt" count="0"/>
-      <line num="12" type="stmt" count="0"/>
-      <line num="15" type="stmt" count="0"/>
-      <line num="18" type="stmt" count="0"/>
-      <line num="19" type="stmt" count="0"/>
-      <line num="20" type="stmt" count="0"/>
-      <line num="21" type="stmt" count="0"/>
-      <line num="22" type="stmt" count="0"/>
-      <line num="23" type="stmt" count="0"/>
-      <line num="24" type="stmt" count="0"/>
-      <line num="25" type="stmt" count="0"/>
-      <line num="26" type="stmt" count="0"/>
-      <line num="27" type="stmt" count="0"/>
-      <line num="28" type="stmt" count="0"/>
-      <line num="31" type="stmt" count="0"/>
-      <line num="32" type="stmt" count="0"/>
-      <line num="33" type="stmt" count="0"/>
-      <line num="34" type="stmt" count="0"/>
-      <line num="35" type="stmt" count="0"/>
-      <line num="36" type="stmt" count="0"/>
-      <line num="37" type="stmt" count="0"/>
-      <line num="40" type="stmt" count="0"/>
-      <line num="41" type="stmt" count="0"/>
-      <line num="42" type="stmt" count="0"/>
-      <line num="43" type="stmt" count="0"/>
-      <line num="44" type="stmt" count="0"/>
-      <line num="45" type="stmt" count="0"/>
-      <line num="48" type="stmt" count="0"/>
-      <line num="51" type="stmt" count="0"/>
-      <line num="53" type="stmt" count="0"/>
-      <metrics loc="53" ncloc="46" classes="0" methods="0" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="30" coveredstatements="0" elements="30" coveredelements="0"/>
-    </file>
-    <metrics files="4" loc="245" ncloc="226" classes="3" methods="7" coveredmethods="7" conditionals="0" coveredconditionals="0" statements="123" coveredstatements="93" elements="130" coveredelements="100"/>
+    <metrics files="3" loc="192" ncloc="180" classes="3" methods="7" coveredmethods="7" conditionals="0" coveredconditionals="0" statements="93" coveredstatements="93" elements="100" coveredelements="100"/>
   </project>
 </coverage>
