@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true" testdox="true">
-  
-  <testsuites>
-    <testsuite name="Application Test Suite">
-      <directory>backend/tests</directory>
-    </testsuite>
-  </testsuites>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutCoversAnnotation="false">
+         
+    <testsuites>
+        <testsuite name="Application Test Suite">
+            <directory>./backend/tests</directory>
+        </testsuite>
+    </testsuites>
 
-  <source>
-    <include>
-      <directory suffix=".php">backend/src</directory>
-    </include>
-  </source>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./backend/src</directory>
+        </include>
+        <report>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
 </phpunit>
