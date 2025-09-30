@@ -1,31 +1,17 @@
-import { guestContainer, guestLabel } from "./domRefs.js";
-import { guestCount, incrementGuests, decrementGuests } from "./state.js";
 import { pluralize } from "./utils.js";
+import { guestCount, incrementGuests, decrementGuests } from "./state.js";
 
-export function updateGuestLabel() {
-  if (!guestLabel) return;
-  guestLabel.textContent = `Guest Ages (${pluralize(guestCount, "Guest", "Guests")})`;
+function updateGuestLabel(refs) {
+  refs.guestLabel.textContent = `Guest Ages (${pluralize(guestCount, "Guest", "Guests")})`;
 }
 
-export function updateRemoveButtons() {
-  const removeButtons = guestContainer.querySelectorAll("[data-remove-guest]");
-  removeButtons.forEach((btn) => {
-    const disabled = guestCount === 1;
-    btn.disabled = disabled;
-    btn.className = disabled
-      ? "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 font-bold cursor-not-allowed"
-      : "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
-  });
-}
-
-function createGuestRow(age = "") {
+export function addGuestInput(refs, age = "") {
   const wrapper = document.createElement("div");
-  wrapper.className = "flex items-center gap-2";
+  wrapper.className = "flex flex-col gap-1";
   wrapper.setAttribute("data-guest-row", "");
 
-  const inputWrapper = document.createElement("label");
-  inputWrapper.className = "flex items-center border border-gray-300 rounded-md w-full";
-  inputWrapper.title = "Guest age in years";
+  const row = document.createElement("div");
+  row.className = "flex items-center gap-2";
 
   const input = document.createElement("input");
   input.type = "number";
@@ -33,52 +19,76 @@ function createGuestRow(age = "") {
   input.max = "120";
   input.value = age;
   input.placeholder = "Age";
-  input.className = "flex-1 px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-700";
+  input.className = "input-guest";
 
   const unit = document.createElement("span");
   unit.textContent = "years";
-  unit.className = "px-2 text-gray-500 text-sm";
-
-  inputWrapper.appendChild(input);
-  inputWrapper.appendChild(unit);
+  unit.className = "px-2 text-sm text-gondwana-dark";
 
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
-  removeBtn.setAttribute("data-remove-guest", "");
   removeBtn.textContent = "−";
-  removeBtn.className = "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
+  removeBtn.className = "btn-secondary px-3 py-2 font-bold";
   removeBtn.addEventListener("click", () => {
     if (guestCount > 1) {
       wrapper.remove();
       decrementGuests();
-      updateGuestLabel();
-      updateRemoveButtons();
+      updateGuestLabel(refs);
     }
   });
 
-  wrapper.appendChild(inputWrapper);
-  wrapper.appendChild(removeBtn);
-  return wrapper;
-}
+  row.appendChild(input);
+  row.appendChild(unit);
+  row.appendChild(removeBtn);
+  wrapper.appendChild(row);
 
-export function addGuestInput(age = "") {
-  const row = createGuestRow(age);
-  guestContainer.appendChild(row);
+  refs.guestContainer.appendChild(wrapper);
+
   incrementGuests();
-  updateGuestLabel();
-  updateRemoveButtons();
+  updateGuestLabel(refs);
 }
 
-export function validateGuests() {
-  const inputs = guestContainer.querySelectorAll('input[type="number"]');
+export function wireAddBtn(refs) {
+  refs.addGuestBtn.addEventListener("click", () => addGuestInput(refs));
+}
+
+export function validateGuests(refs) {
+  const wrappers = refs.guestContainer.querySelectorAll("[data-guest-row]");
   const ages = [];
-  for (const input of inputs) {
-    if (!input.value.trim()) throw new Error("All guest ages must be filled in.");
-    const age = parseInt(input.value, 10);
-    if (Number.isNaN(age) || age < 0) {
-      throw new Error("Guest ages must be valid positive numbers.");
+  let hasError = false;
+
+  wrappers.forEach((wrapper) => {
+    const input = wrapper.querySelector("input[type='number']");
+    const existingError = wrapper.querySelector(".error-text");
+    if (existingError) existingError.remove();
+
+    input.classList.remove("input-error");
+
+    if (!input.value.trim()) {
+      input.classList.add("input-error");
+      const errorMsg = document.createElement("div");
+      errorMsg.className = "error-text";
+      errorMsg.textContent = "Please enter an age.";
+      wrapper.appendChild(errorMsg);
+      hasError = true;
+    } else {
+      const age = parseInt(input.value, 10);
+      if (Number.isNaN(age) || age < 0) {
+        input.classList.add("input-error");
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "error-text";
+        errorMsg.textContent = "Age must be a valid positive number.";
+        wrapper.appendChild(errorMsg);
+        hasError = true;
+      } else {
+        ages.push(age);
+      }
     }
-    ages.push(age);
+  });
+
+  if (hasError) {
+    throw new Error("Please fix the highlighted guest ages.");
   }
+
   return ages;
 }

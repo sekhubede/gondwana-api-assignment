@@ -8,6 +8,7 @@ use App\Services\ResponseFormatter;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
+use DateTime;
 
 class BookingController
 {
@@ -32,16 +33,32 @@ class BookingController
     {
         try {
             $data = $request->getParsedBody() ?? [];
-            $normalized = $this->transformer->transform($data);
 
-            $apiResponse = $this->httpClient->post('Rates.php', [
-                'json' => $normalized
-            ]);
+            $arrival   = isset($data['Arrival'])
+                ? DateTime::createFromFormat('d/m/Y', $data['Arrival'])
+                : null;
+            $departure = isset($data['Departure'])
+                ? DateTime::createFromFormat('d/m/Y', $data['Departure'])
+                : null;
+            $today     = new DateTime('today');
 
-            $body = $apiResponse->getBody()->getContents();
-            $decoded = json_decode($body, true);
+            if (!$arrival || !$departure) {
+                throw new InvalidArgumentException('Arrival and departure dates are required (dd/mm/yyyy).');
+            }
 
-            $clean = $this->formatter->format($decoded);
+            if ($arrival < $today) {
+                throw new InvalidArgumentException('Arrival date cannot be in the past.');
+            }
+
+            if ($departure <= $arrival) {
+                throw new InvalidArgumentException('Departure date must be after arrival date.');
+            }
+
+            $normalized  = $this->transformer->transform($data);
+            $apiResponse = $this->httpClient->post('Rates.php', ['json' => $normalized]);
+            $body        = $apiResponse->getBody()->getContents();
+            $decoded     = json_decode($body, true);
+            $clean       = $this->formatter->format($decoded);
 
             $payload = [
                 'status'  => 200,
@@ -55,7 +72,6 @@ class BookingController
                 'status'  => 400,
                 'content' => [
                     'success' => false,
-                    'error'   => 'Invalid input',
                     'message' => $e->getMessage(),
                     'data'    => null
                 ]
@@ -65,8 +81,7 @@ class BookingController
                 'status'  => 502,
                 'content' => [
                     'success' => false,
-                    'error'   => 'Failed to fetch rates',
-                    'message' => $e->getMessage(),
+                    'message' => 'Failed to fetch rates',
                     'data'    => null
                 ]
             ];
@@ -75,8 +90,7 @@ class BookingController
                 'status'  => 500,
                 'content' => [
                     'success' => false,
-                    'error'   => 'Unexpected server error',
-                    'message' => $e->getMessage(),
+                    'message' => 'Unexpected server error',
                     'data'    => null
                 ]
             ];
