@@ -15,7 +15,7 @@
   "portsAttributes": {
     "8080": {
       "label": "Backend API",
-      "onAutoForward": "public"
+      "onAutoForward": "openPreview"
     }
   }
 }
