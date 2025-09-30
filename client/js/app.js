@@ -14,6 +14,7 @@ const form = document.getElementById("rates-form");
 const resultsSection = document.getElementById("results");
 const cardsContainer = document.getElementById("rates-container");
 const grandTotalBar = document.getElementById("grand-total");
+const getRatesBtn = document.getElementById("get-rates-btn");
 
 const guestContainer = document.getElementById("guest-ages");
 const guestLabel = document.getElementById("guest-label");
@@ -43,7 +44,7 @@ function updateRemoveButtons() {
     btn.disabled = disabled;
     btn.className = disabled
       ? "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 font-bold cursor-not-allowed"
-      : "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-black font-bold";
+      : "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
   });
 }
 
@@ -64,7 +65,7 @@ function createGuestRow(age = "") {
   input.value = age;
   input.placeholder = "Age";
   input.className =
-    "flex-1 px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-black";
+    "flex-1 px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-700";
 
   const unit = document.createElement("span");
   unit.textContent = "years";
@@ -78,7 +79,7 @@ function createGuestRow(age = "") {
   removeBtn.setAttribute("data-remove-guest", "");
   removeBtn.textContent = "−";
   removeBtn.className =
-    "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-black font-bold";
+    "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
   removeBtn.addEventListener("click", () => {
     if (guestCount > 1) {
       wrapper.remove();
@@ -115,7 +116,7 @@ function formatDateRange(arrival, departure) {
 }
 
 /* ----------------------------------------
-   Render rates
+   Render: booking card style
 ----------------------------------------- */
 function renderRates(legs, totalCharge, bookingGroup, arrival, departure, roomsTopLevel) {
   cardsContainer.innerHTML = "";
@@ -148,24 +149,24 @@ function renderRates(legs, totalCharge, bookingGroup, arrival, departure, roomsT
     if (haveRooms) {
       availabilityBadge =
         roomsTopLevel > 0
-          ? `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
+          ? `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                ✅ Available (${roomsTopLevel} rooms left)
              </span>`
-          : `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-500">
+          : `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
                ❌ Unavailable
              </span>`;
     }
 
     const card = document.createElement("div");
     card.className =
-      "flex flex-col rounded-2xl shadow border border-gray-200 overflow-hidden bg-white";
+      "flex flex-col rounded-2xl shadow-lg hover:shadow-xl transition overflow-hidden bg-white w-full max-w-sm";
 
     card.innerHTML = `
-      <div class="bg-gray-900 text-white p-4">
+      <div class="bg-gray-800 text-white p-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h3 class="text-base sm:text-lg font-bold">${unitName}</h3>
-            <p class="text-xs opacity-80">${guestType} Rate</p>
+            <p class="text-xs opacity-90">${guestType} Rate</p>
           </div>
           <span class="inline-block px-2 py-0.5 text-xs sm:text-sm rounded-full bg-white/20">
             ${leg.Guests?.[0]?.Category || "STANDARD"}
@@ -175,7 +176,7 @@ function renderRates(legs, totalCharge, bookingGroup, arrival, departure, roomsT
 
       <div class="p-6 flex flex-col gap-4 text-center">
         <div>
-          <p class="text-3xl font-extrabold text-gray-900 leading-tight">
+          <p class="text-3xl font-extrabold text-gray-800 leading-tight">
             N$${perNight} <span class="text-sm text-gray-500 font-medium">/night</span>
           </p>
           <p class="text-gray-600 text-sm">
@@ -198,13 +199,13 @@ function renderRates(legs, totalCharge, bookingGroup, arrival, departure, roomsT
   });
 
   grandTotalBar.innerHTML =
-    `Grand Total: <span class="text-black font-bold">N$${totalCharge}</span>`;
+    `Grand Total: <span class="text-gray-900 font-bold">N$${totalCharge}</span>`;
   grandTotalBar.classList.remove("hidden");
   resultsSection.classList.remove("hidden");
 }
 
 /* ----------------------------------------
-   Boot
+   Boot: wire events + initial guest row
 ----------------------------------------- */
 if (addGuestBtn) {
   addGuestBtn.addEventListener("click", () => addGuestInput());
@@ -212,7 +213,7 @@ if (addGuestBtn) {
 addGuestInput();
 
 /* ----------------------------------------
-   Submit handler
+   Submit handler (with loading state)
 ----------------------------------------- */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -228,6 +229,10 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
+    // ⏳ Loading state
+    getRatesBtn.disabled = true;
+    getRatesBtn.innerHTML = `<span>⏳</span> Searching…`;
+
     const response = await fetch(`${API_BASE}/rates`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -249,5 +254,9 @@ form.addEventListener("submit", async (e) => {
     cardsContainer.innerHTML = `<p class="text-red-600">❌ ${err.message}</p>`;
     resultsSection.classList.remove("hidden");
     grandTotalBar.classList.add("hidden");
+  } finally {
+    // ✅ Restore button
+    getRatesBtn.disabled = false;
+    getRatesBtn.innerHTML = `<span>⚡</span> Get Rates`;
   }
 });
