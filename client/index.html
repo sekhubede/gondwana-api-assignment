@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gondwana Rates Calculator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <h1>Check Rates</h1>
+  
+  <form id="rates-form">
+    <label>
+      Arrival:
+      <input type="date" id="arrival" required />
+    </label>
+    <br />
+
+    <label>
+      Departure:
+      <input type="date" id="departure" required />
+    </label>
+    <br />
+
+    <label>
+      Ages (comma separated):
+      <input type="text" id="ages" placeholder="e.g., 30,12" required />
+    </label>
+    <br />
+
+    <button type="submit">Get Rates</button>
+  </form>
+
+  <h2>Response</h2>
+  <pre id="response"></pre>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
