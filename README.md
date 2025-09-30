@@ -11,6 +11,7 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
   - **public/** → Web entrypoint (`index.php`)
   - **src/** → Application source code (controllers, services)
   - **tests/** → PHPUnit test suite
+- **client/** → Frontend (HTML, CSS, JS)
 - **.github/workflows/** → CI pipeline with SonarCloud
 - **.devcontainer/** → GitHub Codespaces setup
 
@@ -22,50 +23,81 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
 - [Slim PSR-7](https://github.com/slimphp/Slim-Psr7)
 - [GuzzleHTTP](https://github.com/guzzle/guzzle)
 - PHPUnit 11 (tests + coverage)
-- Vanilla JS frontend
+- Vanilla JS frontend with TailwindCSS
 - GitHub Actions + SonarCloud for CI/CD & code quality
+- Devcontainer + Codespaces for reproducible setup
 
 ---
 
 ## Running the Backend
 
 ### In Codespaces
-1. Open this repo in GitHub Codespaces.
-2. Start the backend with:
+1. Open this repo in GitHub Codespaces.  
+2. Install dependencies:
+   ```bash
+   composer install
+   ```
+3. Start the backend:
    ```bash
    composer serve
    ```
-This runs Slim at http://localhost:8080 with backend/public as the document root.
-3. Codespaces will forward port 8080.
-Open the provided URL, for example:
+   This runs Slim at http://localhost:8080 with `backend/public` as the document root.  
+4. Open the provided Codespaces URL, for example:
+   ```
+   https://<your-codespace-id>-8080.app.github.dev/
+   ```
 
-```cpp
-https://<your-codespace-id>-8080.app.github.dev/
-```
-## Available Routes
+---
 
-- GET / → Health check
-Returns:
+## Running the Frontend
 
-```json
-{ "status": "ok", "message": "API is running" }
-```
+### In Codespaces
+1. Navigate to the `client/` folder:
+   ```bash
+   cd client
+   npm install
+   ```
+2. Start the frontend:
+   ```bash
+   npm start
+   ```
+   This runs **live-server** on port 5500 and serves `index.html`.
 
-- POST /rates → Calculate rates
-Accepts JSON payload with fields like Unit Name, Arrival, Departure, Ages.
+3. **Expose Backend API (manual step)**  
+   - Go to the **PORTS tab** in Codespaces  
+   - Find port **8080**  
+   - Right-click → **Make Public**  
+
+4. Open the frontend in your browser:  
+   ```
+   https://<your-codespace-id>-5500.app.github.dev/
+   ```
+
+### Gotchas
+- **Empty Guest Ages:** The form will not submit if you add a guest without entering an age.  
+- **Ports Reset:** If you restart the Codespace, ensure port `8080` is still set to **Public**.  
+- **First Run:** On new Codespaces, the UI may open from the repo root — manually navigate into `/client` if needed.
+
+---
+
+## Available Backend Routes
+
+- **GET /** → Health check  
+  Returns:
+  ```json
+  { "status": "ok", "message": "API is running" }
+  ```
+
+- **POST /rates** → Calculate rates  
+  Accepts JSON payload with fields like Unit Type ID, Arrival, Departure, Ages.
+
+---
 
 ## Testing
 
 ```bash
-Run PHPUnit with coverage:
-
 composer test
 ```
 
-All new code is covered by unit tests.
+All new code is covered by unit tests.  
 SonarQube gates: ✅ 100% coverage, maintainability checks passed.
-
-## Frontend
-
-The frontend (Vanilla JS + HTML & CSS) will be added under a frontend/ directory in a separate branch.
-It will query the backend /rates endpoint and render results in a simple UI.

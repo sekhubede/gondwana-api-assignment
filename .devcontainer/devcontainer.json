@@ -1,6 +1,11 @@
 {
-  "name": "PHP Dev",
+  "name": "PHP + Node Dev",
   "image": "mcr.microsoft.com/devcontainers/php:8.2",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
   "postCreateCommand": "composer install",
   "customizations": {
     "vscode": {
