@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1759265737">
-  <project timestamp="1759265737" name="Clover Coverage">
+<coverage generated="1759266819">
+  <project timestamp="1759266819" name="Clover Coverage">
     <package name="App\Controllers">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Controllers/BookingController.php">
         <class name="App\Controllers\BookingController" namespace="App\Controllers">
@@ -79,42 +79,44 @@
     <package name="App\Services">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Services/PayloadTransformer.php">
         <class name="App\Services\PayloadTransformer" namespace="App\Services">
-          <metrics complexity="13" methods="4" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="29" coveredstatements="29" elements="33" coveredelements="33"/>
+          <metrics complexity="14" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="34" coveredstatements="33" elements="35" coveredelements="33"/>
         </class>
-        <line num="15" type="method" name="transform" visibility="public" complexity="2" crap="2" count="12"/>
-        <line num="17" type="stmt" count="12"/>
-        <line num="18" type="stmt" count="8"/>
-        <line num="19" type="stmt" count="7"/>
-        <line num="21" type="stmt" count="7"/>
-        <line num="22" type="stmt" count="1"/>
-        <line num="25" type="stmt" count="6"/>
-        <line num="27" type="stmt" count="5"/>
-        <line num="28" type="stmt" count="5"/>
-        <line num="29" type="stmt" count="5"/>
-        <line num="30" type="stmt" count="5"/>
-        <line num="31" type="stmt" count="5"/>
-        <line num="32" type="stmt" count="5"/>
-        <line num="35" type="method" name="validateRequiredFields" visibility="private" complexity="4" crap="4" count="12"/>
-        <line num="37" type="stmt" count="12"/>
-        <line num="38" type="stmt" count="12"/>
-        <line num="39" type="stmt" count="3"/>
-        <line num="43" type="stmt" count="9"/>
-        <line num="44" type="stmt" count="1"/>
-        <line num="48" type="method" name="parseDate" visibility="private" complexity="2" crap="2" count="8"/>
-        <line num="50" type="stmt" count="8"/>
-        <line num="51" type="stmt" count="8"/>
-        <line num="52" type="stmt" count="1"/>
-        <line num="54" type="stmt" count="7"/>
-        <line num="57" type="method" name="transformGuests" visibility="private" complexity="5" crap="5" count="6"/>
-        <line num="59" type="stmt" count="6"/>
-        <line num="60" type="stmt" count="6"/>
-        <line num="61" type="stmt" count="6"/>
-        <line num="62" type="stmt" count="1"/>
-        <line num="65" type="stmt" count="6"/>
-        <line num="66" type="stmt" count="6"/>
-        <line num="67" type="stmt" count="6"/>
-        <line num="69" type="stmt" count="5"/>
-        <metrics loc="71" ncloc="65" classes="1" methods="4" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="29" coveredstatements="29" elements="33" coveredelements="33"/>
+        <line num="9" type="method" name="transform" visibility="public" complexity="14" crap="14" count="13"/>
+        <line num="11" type="stmt" count="13"/>
+        <line num="12" type="stmt" count="1"/>
+        <line num="14" type="stmt" count="12"/>
+        <line num="15" type="stmt" count="1"/>
+        <line num="17" type="stmt" count="11"/>
+        <line num="18" type="stmt" count="1"/>
+        <line num="20" type="stmt" count="10"/>
+        <line num="21" type="stmt" count="1"/>
+        <line num="24" type="stmt" count="9"/>
+        <line num="25" type="stmt" count="9"/>
+        <line num="27" type="stmt" count="9"/>
+        <line num="28" type="stmt" count="1"/>
+        <line num="30" type="stmt" count="8"/>
+        <line num="31" type="stmt" count="0"/>
+        <line num="34" type="stmt" count="8"/>
+        <line num="35" type="stmt" count="8"/>
+        <line num="36" type="stmt" count="1"/>
+        <line num="39" type="stmt" count="7"/>
+        <line num="40" type="stmt" count="1"/>
+        <line num="43" type="stmt" count="6"/>
+        <line num="44" type="stmt" count="6"/>
+        <line num="45" type="stmt" count="6"/>
+        <line num="46" type="stmt" count="1"/>
+        <line num="48" type="stmt" count="6"/>
+        <line num="49" type="stmt" count="6"/>
+        <line num="50" type="stmt" count="6"/>
+        <line num="51" type="stmt" count="6"/>
+        <line num="52" type="stmt" count="6"/>
+        <line num="55" type="stmt" count="5"/>
+        <line num="56" type="stmt" count="5"/>
+        <line num="57" type="stmt" count="5"/>
+        <line num="58" type="stmt" count="5"/>
+        <line num="59" type="stmt" count="5"/>
+        <line num="60" type="stmt" count="5"/>
+        <metrics loc="62" ncloc="62" classes="1" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="34" coveredstatements="33" elements="35" coveredelements="33"/>
       </file>
       <file name="/workspaces/gondwana-api-assignment/backend/src/Services/ResponseFormatter.php">
         <class name="App\Services\ResponseFormatter" namespace="App\Services">
@@ -141,6 +143,6 @@
         <metrics loc="39" ncloc="33" classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="17" coveredstatements="17" elements="18" coveredelements="18"/>
       </file>
     </package>
-    <metrics files="3" loc="217" ncloc="205" classes="3" methods="7" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="111" coveredstatements="108" elements="118" coveredelements="114"/>
+    <metrics files="3" loc="208" ncloc="202" classes="3" methods="4" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="116" coveredstatements="112" elements="120" coveredelements="114"/>
   </project>
 </coverage>

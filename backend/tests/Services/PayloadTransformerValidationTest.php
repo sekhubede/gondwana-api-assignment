@@ -56,4 +56,19 @@ class PayloadTransformerValidationTest extends TestCase
             "Ages"      => [30, -5]
         ]);
     }
+
+    public function testThrowsExceptionForArrivalInThePast(): void
+    {
+        $yesterday = (new \DateTimeImmutable('yesterday'))->format('d/m/Y');
+        $tomorrow  = (new \DateTimeImmutable('tomorrow'))->format('d/m/Y');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Arrival date cannot be in the past");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => $yesterday,
+            "Departure" => $tomorrow,
+            "Ages"      => [30]
+        ]);
+    }
 }
