@@ -56,7 +56,8 @@ class BookingController
                 'content' => [
                     'success' => false,
                     'error'   => 'Invalid input',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
+                    'data'    => null
                 ]
             ];
         } catch (RequestException $e) {
@@ -65,7 +66,8 @@ class BookingController
                 'content' => [
                     'success' => false,
                     'error'   => 'Failed to fetch rates',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
+                    'data'    => null
                 ]
             ];
         } catch (\Throwable $e) {
@@ -74,12 +76,16 @@ class BookingController
                 'content' => [
                     'success' => false,
                     'error'   => 'Unexpected server error',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
+                    'data'    => null
                 ]
             ];
         }
 
-        $response->getBody()->write(json_encode($payload['content'], JSON_PRETTY_PRINT));
+        $response->getBody()->write(
+            json_encode($payload['content'], JSON_PRETTY_PRINT)
+        );
+
         return $response
             ->withStatus($payload['status'])
             ->withHeader('Content-Type', 'application/json');

@@ -215,12 +215,19 @@ addGuestInput();
 /* ----------------------------------------
    Submit handler (with loading state)
 ----------------------------------------- */
+/* ----------------------------------------
+   Submit handler
+----------------------------------------- */
+/* ----------------------------------------
+   Submit handler with loading + error handling
+----------------------------------------- */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const arrival = document.getElementById("arrival").value;
   const departure = document.getElementById("departure").value;
   const ages = getAges();
+  const submitBtn = form.querySelector("button[type='submit']");
 
   const payload = {
     Arrival: new Date(arrival).toLocaleDateString("en-GB"),
@@ -229,9 +236,9 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
-    // ⏳ Loading state
-    getRatesBtn.disabled = true;
-    getRatesBtn.innerHTML = `<span>⏳</span> Searching…`;
+    // 🔄 Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="animate-spin">⏳</span> Loading...`;
 
     const response = await fetch(`${API_BASE}/rates`, {
       method: "POST",
@@ -239,24 +246,32 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-    const data = await response.json();
+    const result = await response.json();
+
+    // ✅ Unified backend format
+    if (!result.success) {
+      throw new Error(result.message || "Unknown error occurred");
+    }
 
     renderRates(
-      data?.data?.Legs || [],
-      data?.data?.["Total Charge"] ?? 0,
-      data?.data?.["Booking Group ID"] ?? null,
+      result.data?.Legs || [],
+      result.data?.["Total Charge"] ?? 0,
+      result.data?.["Booking Group ID"] ?? null,
       arrival,
       departure,
-      data?.data?.Rooms
+      result.data?.Rooms ?? 0
     );
   } catch (err) {
-    cardsContainer.innerHTML = `<p class="text-red-600">❌ ${err.message}</p>`;
+    cardsContainer.innerHTML = `
+      <p class="text-red-600 text-center">
+        ❌ ${err.message}
+      </p>
+    `;
     resultsSection.classList.remove("hidden");
     grandTotalBar.classList.add("hidden");
   } finally {
-    // ✅ Restore button
-    getRatesBtn.disabled = false;
-    getRatesBtn.innerHTML = `<span>⚡</span> Get Rates`;
+    // 🔄 Reset button
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<span>⚡</span> Get Rates`;
   }
 });
