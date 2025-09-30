@@ -6,15 +6,16 @@
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",
-        "xdebug.php-debug"
+        "xdebug.php-debug",
+        "ritwickdey.liveserver"
       ]
     }
   },
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": {
-      "label": "PHP Server",
-      "onAutoForward": "openPreview"
+      "label": "Backend API",
+      "onAutoForward": "public"
     }
   }
 }

@@ -102,10 +102,21 @@ function addGuestInput(age = "") {
   updateRemoveButtons();
 }
 
-function getAges() {
-  return Array.from(guestContainer.querySelectorAll('input[type="number"]'))
-    .map((el) => parseInt(el.value, 10))
-    .filter((n) => !Number.isNaN(n));
+/* ✅ NEW: strict validation — no empty guest ages allowed */
+function validateGuests() {
+  const inputs = guestContainer.querySelectorAll('input[type="number"]');
+  const ages = [];
+  for (const input of inputs) {
+    if (!input.value.trim()) {
+      throw new Error("All guest ages must be filled in.");
+    }
+    const age = parseInt(input.value, 10);
+    if (Number.isNaN(age) || age < 0) {
+      throw new Error("Guest ages must be valid positive numbers.");
+    }
+    ages.push(age);
+  }
+  return ages;
 }
 
 function formatDateRange(arrival, departure) {
@@ -213,29 +224,24 @@ if (addGuestBtn) {
 addGuestInput();
 
 /* ----------------------------------------
-   Submit handler (with loading state)
------------------------------------------ */
-/* ----------------------------------------
-   Submit handler
------------------------------------------ */
-/* ----------------------------------------
-   Submit handler with loading + error handling
+   Submit handler with validation + loading
 ----------------------------------------- */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const arrival = document.getElementById("arrival").value;
   const departure = document.getElementById("departure").value;
-  const ages = getAges();
   const submitBtn = form.querySelector("button[type='submit']");
 
-  const payload = {
-    Arrival: new Date(arrival).toLocaleDateString("en-GB"),
-    Departure: new Date(departure).toLocaleDateString("en-GB"),
-    Ages: ages,
-  };
-
   try {
+    const ages = validateGuests();
+
+    const payload = {
+      Arrival: new Date(arrival).toLocaleDateString("en-GB"),
+      Departure: new Date(departure).toLocaleDateString("en-GB"),
+      Ages: ages,
+    };
+
     // 🔄 Show loading state
     submitBtn.disabled = true;
     submitBtn.innerHTML = `<span class="animate-spin">⏳</span> Loading...`;
