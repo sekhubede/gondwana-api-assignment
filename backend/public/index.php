@@ -1,6 +1,6 @@
 <?php
+
 use Slim\Factory\AppFactory;
-use Slim\Exception\HttpNotFoundException;
 use Slim\Middleware\ErrorMiddleware;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
@@ -11,11 +11,26 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 $app = AppFactory::create();
 
+// CORS middleware
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
+    return $response
+        ->withHeader('Access-Control-Allow-Origin', '*')
+        ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        ->withHeader('Access-Control-Max-Age', '3600');
+});
+
+// Handle preflight OPTIONS requests
+$app->options('/{routes:.+}', function ($request, $response) {
+    return $response;
+});
+
 // Middleware
 $app->addBodyParsingMiddleware();
 
-// Error handling middleware
-$displayErrorDetails = false;   // set to false in production
+// Error handling
+$displayErrorDetails = true; // set to false in production
 $logErrors = true;
 $logErrorDetails = true;
 $errorMiddleware = new ErrorMiddleware(
@@ -27,7 +42,7 @@ $errorMiddleware = new ErrorMiddleware(
 );
 $app->add($errorMiddleware);
 
-// Health check route
+// Health check
 $app->get('/', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'status'  => 'ok',
@@ -44,10 +59,18 @@ $httpClient  = new Client([
     'timeout'  => 10.0,
 ]);
 
-// Controllers
+// Controller
 $bookingController = new BookingController($transformer, $formatter, $httpClient);
 
 // Routes
+$app->get('/rates', function ($request, $response) {
+    $response->getBody()->write(json_encode([
+        'status'  => 'ok',
+        'message' => 'Rates endpoint is alive — use POST to calculate rates'
+    ]));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 $app->post('/rates', [$bookingController, 'calculateRates']);
 
 $app->run();
