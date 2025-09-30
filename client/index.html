@@ -7,38 +7,39 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
-  <main class="max-w-4xl mx-auto p-6">
+  <main class="max-w-6xl mx-auto p-6 flex flex-col space-y-6">
     <!-- Header -->
-    <h1 class="text-3xl font-bold text-center mb-2">Check Rates</h1>
-    <p class="text-center text-gray-500 mb-8">Find the perfect rate for your stay</p>
+    <header>
+      <h1 class="text-3xl font-bold text-center mb-2 text-gray-900">Check Rates</h1>
+      <p class="text-center text-gray-500 mb-8">Find the perfect rate for your stay</p>
+    </header>
 
     <!-- Search Form -->
-    <form id="rates-form" class="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+    <form id="rates-form" class="bg-white shadow rounded-lg p-6 mb-6 border border-gray-200">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
         <span>🔍</span> Search Rates
       </h2>
 
       <!-- Dates -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <label for="arrival" class="block text-sm font-medium mb-1">Arrival Date</label>
+          <label for="arrival" class="block text-sm font-medium mb-1 text-gray-700">Arrival Date</label>
           <input type="date" id="arrival" required
-                 class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500" />
+                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black" />
         </div>
-
         <div>
-          <label for="departure" class="block text-sm font-medium mb-1">Departure Date</label>
+          <label for="departure" class="block text-sm font-medium mb-1 text-gray-700">Departure Date</label>
           <input type="date" id="departure" required
-                 class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500" />
+                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black" />
         </div>
       </div>
 
       <!-- Guest Ages -->
       <div class="mb-4">
         <div class="flex items-center justify-between mb-2">
-          <label id="guest-label" class="text-sm font-medium">Guest Ages (1 Guest)</label>
+          <label id="guest-label" class="text-sm font-medium text-gray-700">Guest Ages (1 Guest)</label>
           <button type="button" id="add-guest"
-                  class="px-3 py-1 text-sm border rounded-md bg-gray-50 hover:bg-gray-100">
+                  class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-gray-100 hover:bg-gray-200">
             + Add Guest
           </button>
         </div>
@@ -47,15 +48,25 @@
 
       <!-- Submit -->
       <button type="submit"
-              class="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg">
+              class="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg">
         <span>⚡</span> Get Rates
       </button>
     </form>
 
     <!-- Results -->
-    <section id="results" class="bg-white shadow rounded-lg p-6 hidden">
-      <h2 class="text-lg font-semibold mb-4">Available Rates</h2>
-      <div id="rates-container" class="grid md:grid-cols-3 gap-4 text-center"></div>
+    <section id="results" class="hidden flex flex-col">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800">Available Rates</h2>
+
+      <!-- Grid for rate cards -->
+      <div id="rates-container"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+      </div>
+
+      <!-- Sticky Grand Total -->
+      <div id="grand-total"
+           class="sticky bottom-0 bg-white border-t pt-4 pb-4 text-center text-xl font-semibold text-gray-900 shadow-inner hidden">
+        Grand Total: <span class="text-black font-bold">N$0</span>
+      </div>
     </section>
   </main>
 

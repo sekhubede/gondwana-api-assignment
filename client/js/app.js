@@ -1,36 +1,70 @@
-// Detect API base (Codespaces or local)
+"use strict";
+
+/* ----------------------------------------
+   Env: detect API base (Codespaces or local)
+----------------------------------------- */
 const API_BASE = window.location.hostname.includes("github.dev")
   ? `https://${window.location.hostname.replace("-5500", "-8080")}`
   : "http://localhost:8080";
 
-// Initialize with one guest
+/* ----------------------------------------
+   DOM refs
+----------------------------------------- */
+const form = document.getElementById("rates-form");
+const resultsSection = document.getElementById("results");
+const cardsContainer = document.getElementById("rates-container");
+const grandTotalBar = document.getElementById("grand-total");
+
 const guestContainer = document.getElementById("guest-ages");
+const guestLabel = document.getElementById("guest-label");
+const addGuestBtn = document.getElementById("add-guest");
+
+/* ----------------------------------------
+   State
+----------------------------------------- */
 let guestCount = 0;
-addGuestInput();
-updateGuestLabel();
 
-// Add guest input
-document.getElementById("add-guest").addEventListener("click", () => {
-  addGuestInput();
-  updateGuestLabel();
-  updateRemoveButtons();
-});
+/* ----------------------------------------
+   Utilities
+----------------------------------------- */
+function pluralize(n, one, many) {
+  return `${n} ${n === 1 ? one : many}`;
+}
 
-function addGuestInput(age = "") {
+function updateGuestLabel() {
+  if (!guestLabel) return;
+  guestLabel.textContent = `Guest Ages (${pluralize(guestCount, "Guest", "Guests")})`;
+}
+
+function updateRemoveButtons() {
+  const removeButtons = guestContainer.querySelectorAll("[data-remove-guest]");
+  removeButtons.forEach((btn) => {
+    const disabled = guestCount === 1;
+    btn.disabled = disabled;
+    btn.className = disabled
+      ? "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 font-bold cursor-not-allowed"
+      : "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-black font-bold";
+  });
+}
+
+function createGuestRow(age = "") {
   const wrapper = document.createElement("div");
   wrapper.className = "flex items-center gap-2";
+  wrapper.setAttribute("data-guest-row", "");
 
-  // Input box with "years" label inside
-  const inputWrapper = document.createElement("div");
-  inputWrapper.className = "flex items-center border border-gray-300 rounded-md w-full";
+  const inputWrapper = document.createElement("label");
+  inputWrapper.className =
+    "flex items-center border border-gray-300 rounded-md w-full";
+  inputWrapper.title = "Guest age in years";
 
   const input = document.createElement("input");
   input.type = "number";
   input.min = "0";
+  input.max = "120";
   input.value = age;
   input.placeholder = "Age";
   input.className =
-    "flex-1 px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+    "flex-1 px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-black";
 
   const unit = document.createElement("span");
   unit.textContent = "years";
@@ -39,53 +73,153 @@ function addGuestInput(age = "") {
   inputWrapper.appendChild(input);
   inputWrapper.appendChild(unit);
 
-  // Remove button
   const removeBtn = document.createElement("button");
   removeBtn.type = "button";
+  removeBtn.setAttribute("data-remove-guest", "");
   removeBtn.textContent = "−";
   removeBtn.className =
-    "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
-
-  removeBtn.onclick = () => {
+    "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 text-black font-bold";
+  removeBtn.addEventListener("click", () => {
     if (guestCount > 1) {
       wrapper.remove();
       guestCount--;
       updateGuestLabel();
       updateRemoveButtons();
     }
-  };
+  });
 
   wrapper.appendChild(inputWrapper);
   wrapper.appendChild(removeBtn);
-  guestContainer.appendChild(wrapper);
-  guestCount++;
+  return wrapper;
+}
 
+function addGuestInput(age = "") {
+  const row = createGuestRow(age);
+  guestContainer.appendChild(row);
+  guestCount++;
+  updateGuestLabel();
   updateRemoveButtons();
 }
 
-function updateGuestLabel() {
-  document.getElementById("guest-label").textContent = `Guest Ages (${guestCount} Guest${guestCount > 1 ? "s" : ""})`;
+function getAges() {
+  return Array.from(guestContainer.querySelectorAll('input[type="number"]'))
+    .map((el) => parseInt(el.value, 10))
+    .filter((n) => !Number.isNaN(n));
 }
 
-function updateRemoveButtons() {
-  const removeButtons = guestContainer.querySelectorAll("button");
-  removeButtons.forEach((btn) => {
-    btn.disabled = guestCount === 1;
-    btn.className = guestCount === 1
-      ? "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-400 font-bold cursor-not-allowed"
-      : "px-3 py-2 bg-gray-100 border border-gray-300 rounded-md hover:bg-red-100 text-red-500 font-bold";
+function formatDateRange(arrival, departure) {
+  const opts = { day: "numeric", month: "short", year: "numeric" };
+  const start = new Date(arrival).toLocaleDateString("en-GB", opts);
+  const end = new Date(departure).toLocaleDateString("en-GB", opts);
+  return `${start} → ${end}`;
+}
+
+/* ----------------------------------------
+   Render rates
+----------------------------------------- */
+function renderRates(legs, totalCharge, bookingGroup, arrival, departure, roomsTopLevel) {
+  cardsContainer.innerHTML = "";
+
+  if (!legs.length) {
+    cardsContainer.innerHTML =
+      `<p class="text-gray-500 col-span-full text-center">No rates available for this date range.</p>`;
+    resultsSection.classList.remove("hidden");
+    grandTotalBar.classList.add("hidden");
+    return;
+  }
+
+  const haveRooms = roomsTopLevel !== undefined && roomsTopLevel !== null;
+
+  legs.forEach((leg) => {
+    const unitName = (leg["Special Rate Description"] || "Standard Rate")
+      .replace(/^\*+\s*/, "")
+      .trim();
+
+    const perNight = leg["Effective Average Daily Rate"] ?? 0;
+    const perStay = leg["Total Charge"] ?? 0;
+
+    const guestType =
+      leg.Guests && leg.Guests.length ? leg.Guests[0]["Age Group"] : "Guest";
+
+    let availabilityBadge = `
+      <span class="inline-block px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
+        Check availability
+      </span>`;
+    if (haveRooms) {
+      availabilityBadge =
+        roomsTopLevel > 0
+          ? `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800">
+               ✅ Available (${roomsTopLevel} rooms left)
+             </span>`
+          : `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-500">
+               ❌ Unavailable
+             </span>`;
+    }
+
+    const card = document.createElement("div");
+    card.className =
+      "flex flex-col rounded-2xl shadow border border-gray-200 overflow-hidden bg-white";
+
+    card.innerHTML = `
+      <div class="bg-gray-900 text-white p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold">${unitName}</h3>
+            <p class="text-xs opacity-80">${guestType} Rate</p>
+          </div>
+          <span class="inline-block px-2 py-0.5 text-xs sm:text-sm rounded-full bg-white/20">
+            ${leg.Guests?.[0]?.Category || "STANDARD"}
+          </span>
+        </div>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4 text-center">
+        <div>
+          <p class="text-3xl font-extrabold text-gray-900 leading-tight">
+            N$${perNight} <span class="text-sm text-gray-500 font-medium">/night</span>
+          </p>
+          <p class="text-gray-600 text-sm">
+            Total: <span class="font-semibold">N$${perStay}</span> <span class="text-sm text-gray-500">/stay</span>
+          </p>
+        </div>
+
+        <div class="flex items-center justify-center gap-2 text-sm text-gray-700">
+          <span>📅</span>
+          <span>${formatDateRange(arrival, departure)}</span>
+        </div>
+
+        <div class="flex items-center justify-center">
+          ${availabilityBadge}
+        </div>
+      </div>
+    `;
+
+    cardsContainer.appendChild(card);
   });
+
+  grandTotalBar.innerHTML =
+    `Grand Total: <span class="text-black font-bold">N$${totalCharge}</span>`;
+  grandTotalBar.classList.remove("hidden");
+  resultsSection.classList.remove("hidden");
 }
 
-// Handle form submit
-document.getElementById("rates-form").addEventListener("submit", async (e) => {
+/* ----------------------------------------
+   Boot
+----------------------------------------- */
+if (addGuestBtn) {
+  addGuestBtn.addEventListener("click", () => addGuestInput());
+}
+addGuestInput();
+
+/* ----------------------------------------
+   Submit handler
+----------------------------------------- */
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const arrival = document.getElementById("arrival").value;
   const departure = document.getElementById("departure").value;
-  const ages = Array.from(guestContainer.querySelectorAll("input"))
-    .map((input) => parseInt(input.value, 10))
-    .filter((age) => !isNaN(age));
+  const ages = getAges();
 
   const payload = {
     Arrival: new Date(arrival).toLocaleDateString("en-GB"),
@@ -101,58 +235,19 @@ document.getElementById("rates-form").addEventListener("submit", async (e) => {
     });
 
     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-
     const data = await response.json();
-    renderRates(data.data.Legs || []);
+
+    renderRates(
+      data?.data?.Legs || [],
+      data?.data?.["Total Charge"] ?? 0,
+      data?.data?.["Booking Group ID"] ?? null,
+      arrival,
+      departure,
+      data?.data?.Rooms
+    );
   } catch (err) {
-    document.getElementById("rates-container").innerHTML = `<p>❌ ${err.message}</p>`;
-    document.getElementById("results").classList.remove("hidden");
+    cardsContainer.innerHTML = `<p class="text-red-600">❌ ${err.message}</p>`;
+    resultsSection.classList.remove("hidden");
+    grandTotalBar.classList.add("hidden");
   }
 });
-
-// Render rates
-function renderRates(legs) {
-  const container = document.getElementById("rates-container");
-  container.innerHTML = "";
-
-  if (!legs.length) {
-    container.innerHTML = `<p class="text-gray-500">No rates available. Try different dates or guests.</p>`;
-    document.getElementById("results").classList.remove("hidden");
-    return;
-  }
-
-  legs.forEach((leg, idx) => {
-    const card = document.createElement("div");
-    card.className =
-      "relative border rounded-lg p-4 shadow hover:shadow-md transition bg-white";
-
-    // Decide card title
-    const title =
-      idx === 0 ? "Standard Rate" :
-      idx === 1 ? "Premium Rate" :
-      "Luxury Suite";
-
-    // Add recommended badge only to Premium (idx === 1), centered
-    const badge = idx === 1
-      ? `<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
-           Recommended
-         </span>`
-      : "";
-
-    card.innerHTML = `
-      ${badge}
-      <h3 class="text-lg font-semibold mb-2">${title}</h3>
-      <p class="text-2xl font-bold text-blue-600 mb-2">N$${(
-        leg["Total Charge"] / 1000
-      ).toFixed(0)} <span class="text-sm text-gray-500">/night</span></p>
-      <ul class="text-sm text-gray-600 mb-3">
-        <li>Guests: ${leg.Guests.length}</li>
-        <li>Category: ${leg.Guests[0]?.Category || "N/A"}</li>
-      </ul>
-      <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md">Select Rate</button>
-    `;
-    container.appendChild(card);
-  });
-
-  document.getElementById("results").classList.remove("hidden");
-}

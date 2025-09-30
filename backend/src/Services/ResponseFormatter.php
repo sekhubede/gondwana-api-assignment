@@ -23,10 +23,15 @@ class ResponseFormatter
             self::FIELD_TOTAL_CHARGE  => $response[self::FIELD_TOTAL_CHARGE] ?? null,
             self::FIELD_EXTRAS_CHARGE => $response[self::FIELD_EXTRAS_CHARGE] ?? null,
             self::FIELD_BOOKING_GROUP => $response[self::FIELD_BOOKING_GROUP] ?? null,
+            'Rooms'                   => $response['Rooms'] ?? null,
             self::FIELD_LEGS          => array_map(function ($leg) {
                 return [
-                    self::FIELD_TOTAL_CHARGE => $leg[self::FIELD_TOTAL_CHARGE] ?? null,
-                    self::FIELD_GUESTS       => $leg[self::FIELD_GUESTS] ?? []
+                    self::FIELD_TOTAL_CHARGE       => $leg[self::FIELD_TOTAL_CHARGE] ?? null,
+                    'Effective Average Daily Rate' => $leg['Effective Average Daily Rate'] ?? null,
+                    'Category'                     => $leg['Category'] ?? null,
+                    'Special Rate Description'     => $leg['Special Rate Description'] ?? null,
+                    'Special Rate Code'            => $leg['Special Rate Code'] ?? null,
+                    self::FIELD_GUESTS             => $leg[self::FIELD_GUESTS] ?? []
                 ];
             }, $response[self::FIELD_LEGS] ?? [])
         ];
