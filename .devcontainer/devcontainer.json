@@ -1,19 +1,25 @@
 {
-  "name": "PHP Dev",
+  "name": "PHP + Node Dev",
   "image": "mcr.microsoft.com/devcontainers/php:8.2",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
   "postCreateCommand": "composer install",
   "customizations": {
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",
-        "xdebug.php-debug"
+        "xdebug.php-debug",
+        "ritwickdey.liveserver"
       ]
     }
   },
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": {
-      "label": "PHP Server",
+      "label": "Backend API",
       "onAutoForward": "openPreview"
     }
   }

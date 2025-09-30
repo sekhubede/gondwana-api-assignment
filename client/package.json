@@ -1,13 +1,11 @@
 {
-  "name": "client",
+  "name": "gondwana-client",
   "version": "1.0.0",
+  "private": true,
   "description": "Frontend for Gondwana API Assignment",
-  "main": "index.js",
   "scripts": {
-    "start": "live-server --port=5500 --entry-file=index.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "live-server --port=5500 --open=./index.html --no-browser"
   },
-  "keywords": [],
   "author": "Michael Sekhubede",
   "license": "MIT",
   "devDependencies": {
