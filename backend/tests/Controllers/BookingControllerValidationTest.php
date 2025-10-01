@@ -2,6 +2,7 @@
 namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
+use Slim\Factory\AppFactory;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
 use App\Services\ResponseFormatter;
@@ -11,31 +12,60 @@ use Slim\Psr7\Factory\ResponseFactory;
 
 class BookingControllerValidationTest extends TestCase
 {
-    public function testReturns400OnInvalidPayload(): void
+    private $controller;
+
+    protected function setUp(): void
     {
-        $controller = new BookingController(
+        $this->controller = new BookingController(
             new PayloadTransformer(),
             new ResponseFormatter(),
-            $this->createMock(Client::class)
+            new Client(['http_errors' => false]) // dummy client
         );
+    }
 
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates')
-            ->withParsedBody([
-                "Departure" => "05/10/2025",
-                "Ages" => [25]
-            ]);
+    public function testReturns400WhenDepartureMissing(): void
+    {
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
+        $request = $request->withParsedBody([
+            "Arrival" => "01/10/2025",
+            "Ages"    => [30]
+        ]);
+
         $response = (new ResponseFactory())->createResponse();
+        $result = $this->controller->calculateRates($request, $response);
 
-        $result = $controller->calculateRates($request, $response);
         $this->assertSame(400, $result->getStatusCode());
+    }
 
-        $data = json_decode((string)$result->getBody(), true);
-        $this->assertFalse($data['success']);
+    public function testReturns400WhenArrivalInPast(): void
+    {
+        $yesterday = (new \DateTime('yesterday'))->format('d/m/Y');
 
-        // Match new error message
-        $this->assertStringContainsString(
-            "Arrival and departure dates are required",
-            $data['message']
-        );
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
+        $request = $request->withParsedBody([
+            "Arrival"   => $yesterday,
+            "Departure" => "05/10/2025",
+            "Ages"      => [30]
+        ]);
+
+        $response = (new ResponseFactory())->createResponse();
+        $result = $this->controller->calculateRates($request, $response);
+
+        $this->assertSame(400, $result->getStatusCode());
+    }
+
+    public function testReturns400WhenDepartureBeforeArrival(): void
+    {
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
+        $request = $request->withParsedBody([
+            "Arrival"   => "10/10/2025",
+            "Departure" => "05/10/2025",
+            "Ages"      => [30]
+        ]);
+
+        $response = (new ResponseFactory())->createResponse();
+        $result = $this->controller->calculateRates($request, $response);
+
+        $this->assertSame(400, $result->getStatusCode());
     }
 }

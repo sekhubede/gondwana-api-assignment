@@ -71,4 +71,16 @@ class PayloadTransformerValidationTest extends TestCase
             "Ages"      => [30]
         ]);
     }
+
+    public function testThrowsExceptionForInvalidDepartureFormat(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid date format for Departure");
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => "01/10/2025",
+            "Departure" => "2025-10-05", // wrong format
+            "Ages"      => [30]
+        ]);
+    }
 }
