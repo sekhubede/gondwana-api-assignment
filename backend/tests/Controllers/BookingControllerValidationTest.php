@@ -95,4 +95,19 @@ class BookingControllerValidationTest extends TestCase
         $this->assertFalse($decoded['success']);
         $this->assertSame('Departure date must be after arrival date.', $decoded['message']);
     }
+
+    public function testReturns400OnInvalidDepartureFormat(): void
+    {
+        $request = $this->createRequest([
+            'Arrival'   => (new \DateTimeImmutable('+1 day'))->format('d/m/Y'),
+            'Departure' => '2025-10-05', // wrong format (should be d/m/Y)
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Invalid date format for Departure', $decoded['message']);
+    }
 }

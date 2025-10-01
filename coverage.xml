@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1759303552">
-  <project timestamp="1759303552" name="Clover Coverage">
+<coverage generated="1759303990">
+  <project timestamp="1759303990" name="Clover Coverage">
     <package name="App\Controllers">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Controllers/BookingController.php">
         <class name="App\Controllers\BookingController" namespace="App\Controllers">
-          <metrics complexity="11" methods="2" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="64" coveredstatements="63" elements="66" coveredelements="64"/>
+          <metrics complexity="11" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="64" coveredstatements="64" elements="66" coveredelements="66"/>
         </class>
-        <line num="19" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="8"/>
-        <line num="24" type="stmt" count="8"/>
-        <line num="25" type="stmt" count="8"/>
-        <line num="26" type="stmt" count="8"/>
-        <line num="27" type="stmt" count="8"/>
-        <line num="28" type="stmt" count="8"/>
-        <line num="29" type="stmt" count="8"/>
-        <line num="32" type="method" name="calculateRates" visibility="public" complexity="10" crap="10" count="8"/>
-        <line num="35" type="stmt" count="8"/>
-        <line num="37" type="stmt" count="8"/>
+        <line num="19" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="9"/>
+        <line num="24" type="stmt" count="9"/>
+        <line num="25" type="stmt" count="9"/>
+        <line num="26" type="stmt" count="9"/>
+        <line num="27" type="stmt" count="9"/>
+        <line num="28" type="stmt" count="9"/>
+        <line num="29" type="stmt" count="9"/>
+        <line num="32" type="method" name="calculateRates" visibility="public" complexity="10" crap="10" count="9"/>
+        <line num="35" type="stmt" count="9"/>
+        <line num="37" type="stmt" count="9"/>
         <line num="38" type="stmt" count="1"/>
-        <line num="41" type="stmt" count="7"/>
-        <line num="42" type="stmt" count="7"/>
+        <line num="41" type="stmt" count="8"/>
+        <line num="42" type="stmt" count="8"/>
         <line num="43" type="stmt" count="1"/>
-        <line num="46" type="stmt" count="6"/>
-        <line num="47" type="stmt" count="6"/>
-        <line num="48" type="stmt" count="0"/>
+        <line num="46" type="stmt" count="7"/>
+        <line num="47" type="stmt" count="7"/>
+        <line num="48" type="stmt" count="1"/>
         <line num="51" type="stmt" count="6"/>
         <line num="53" type="stmt" count="6"/>
         <line num="54" type="stmt" count="1"/>
@@ -39,15 +39,15 @@
         <line num="70" type="stmt" count="1"/>
         <line num="71" type="stmt" count="1"/>
         <line num="72" type="stmt" count="1"/>
-        <line num="73" type="stmt" count="7"/>
-        <line num="74" type="stmt" count="5"/>
-        <line num="75" type="stmt" count="5"/>
-        <line num="76" type="stmt" count="5"/>
-        <line num="77" type="stmt" count="5"/>
-        <line num="78" type="stmt" count="5"/>
-        <line num="79" type="stmt" count="5"/>
-        <line num="80" type="stmt" count="5"/>
-        <line num="81" type="stmt" count="5"/>
+        <line num="73" type="stmt" count="8"/>
+        <line num="74" type="stmt" count="6"/>
+        <line num="75" type="stmt" count="6"/>
+        <line num="76" type="stmt" count="6"/>
+        <line num="77" type="stmt" count="6"/>
+        <line num="78" type="stmt" count="6"/>
+        <line num="79" type="stmt" count="6"/>
+        <line num="80" type="stmt" count="6"/>
+        <line num="81" type="stmt" count="6"/>
         <line num="82" type="stmt" count="2"/>
         <line num="83" type="stmt" count="1"/>
         <line num="84" type="stmt" count="1"/>
@@ -66,13 +66,13 @@
         <line num="97" type="stmt" count="1"/>
         <line num="98" type="stmt" count="1"/>
         <line num="99" type="stmt" count="1"/>
-        <line num="102" type="stmt" count="8"/>
-        <line num="103" type="stmt" count="8"/>
-        <line num="104" type="stmt" count="8"/>
-        <line num="106" type="stmt" count="8"/>
-        <line num="107" type="stmt" count="8"/>
-        <line num="108" type="stmt" count="8"/>
-        <metrics loc="110" ncloc="110" classes="1" methods="2" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="64" coveredstatements="63" elements="66" coveredelements="64"/>
+        <line num="102" type="stmt" count="9"/>
+        <line num="103" type="stmt" count="9"/>
+        <line num="104" type="stmt" count="9"/>
+        <line num="106" type="stmt" count="9"/>
+        <line num="107" type="stmt" count="9"/>
+        <line num="108" type="stmt" count="9"/>
+        <metrics loc="110" ncloc="110" classes="1" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="64" coveredstatements="64" elements="66" coveredelements="66"/>
       </file>
     </package>
     <package name="App\Services">
@@ -141,6 +141,6 @@
         <metrics loc="39" ncloc="33" classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="17" coveredstatements="17" elements="18" coveredelements="18"/>
       </file>
     </package>
-    <metrics files="3" loc="209" ncloc="203" classes="3" methods="4" coveredmethods="3" conditionals="0" coveredconditionals="0" statements="114" coveredstatements="113" elements="118" coveredelements="116"/>
+    <metrics files="3" loc="209" ncloc="203" classes="3" methods="4" coveredmethods="4" conditionals="0" coveredconditionals="0" statements="114" coveredstatements="114" elements="118" coveredelements="118"/>
   </project>
 </coverage>
