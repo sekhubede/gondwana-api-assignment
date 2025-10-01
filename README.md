@@ -42,7 +42,7 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
    composer serve
    ```
    This runs Slim at http://localhost:8080 with `backend/public` as the document root.  
-4. Open the provided Codespaces URL, for example:
+4. Open the provided Codespaces URL, for example (optional):
    ```
    https://<your-codespace-id>-8080.app.github.dev/
    ```
@@ -68,7 +68,7 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
    - Find port **8080**  
    - Right-click → **Make Public**  
 
-4. Open the frontend in your browser:  
+4. Open the frontend in your browser (if step 2 did not open it automatically):  
    ```
    https://<your-codespace-id>-5500.app.github.dev/
    ```
@@ -76,7 +76,8 @@ The task: build a **RESTful API in PHP** and a **simple frontend** to query and 
 ### Gotchas
 - **Empty Guest Ages:** The form will not submit if you add a guest without entering an age.  
 - **Ports Reset:** If you restart the Codespace, ensure port `8080` is still set to **Public**.  
-- **First Run:** On new Codespaces, the UI may open from the repo root — manually navigate into `/client` if needed.
+- **First Run:** On new Codespaces, the UI may open from the repo root — manually navigate into `/client` if needed.  
+- **Date Validation:** The UI prevents selecting past dates or a departure date earlier than the arrival date.  
 
 ---
 

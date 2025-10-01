@@ -11,7 +11,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 $app = AppFactory::create();
 
-// CORS middleware
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
     return $response
@@ -21,28 +20,21 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Max-Age', '3600');
 });
 
-// Handle preflight OPTIONS requests
 $app->options('/{routes:.+}', function ($request, $response) {
     return $response;
 });
 
-// Middleware
 $app->addBodyParsingMiddleware();
 
-// Error handling
-$displayErrorDetails = true; // set to false in production
-$logErrors = true;
-$logErrorDetails = true;
 $errorMiddleware = new ErrorMiddleware(
     $app->getCallableResolver(),
     $app->getResponseFactory(),
-    $displayErrorDetails,
-    $logErrors,
-    $logErrorDetails
+    false,
+    true,
+    true
 );
 $app->add($errorMiddleware);
 
-// Health check
 $app->get('/', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'status'  => 'ok',
@@ -51,7 +43,6 @@ $app->get('/', function ($request, $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// Dependencies
 $transformer = new PayloadTransformer();
 $formatter   = new ResponseFormatter();
 $httpClient  = new Client([
@@ -59,10 +50,8 @@ $httpClient  = new Client([
     'timeout'  => 10.0,
 ]);
 
-// Controller
 $bookingController = new BookingController($transformer, $formatter, $httpClient);
 
-// Routes
 $app->get('/rates', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'status'  => 'ok',

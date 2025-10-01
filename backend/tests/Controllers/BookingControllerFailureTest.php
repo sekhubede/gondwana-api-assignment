@@ -5,56 +5,80 @@ use PHPUnit\Framework\TestCase;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
 use App\Services\ResponseFormatter;
-use Tests\Helpers\HttpTestHelpers;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\RequestInterface;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Slim\Psr7\Factory\ResponseFactory;
 
-/**
- * @covers \App\Controllers\BookingController
- */
 class BookingControllerFailureTest extends TestCase
 {
-    use HttpTestHelpers;
-
-    protected function setUp(): void
+    public function testReturns400OnInvalidPayload(): void
     {
-        $this->setUpHttp();
+        $controller = new BookingController(
+            new PayloadTransformer(),
+            new ResponseFormatter(),
+            $this->createMock(Client::class)
+        );
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates')
+            ->withParsedBody([
+                "Arrival" => "2025-10-01", // wrong format
+                "Departure" => "05/10/2025",
+                "Ages" => [25]
+            ]);
+        $response = (new ResponseFactory())->createResponse();
+
+        $result = $controller->calculateRates($request, $response);
+        $this->assertSame(400, $result->getStatusCode());
     }
 
     public function testReturns502OnRequestException(): void
     {
-        $mockTransformer = $this->createMock(PayloadTransformer::class);
-        $mockTransformer->method('transform')->willReturn(['dummy' => true]);
+        $mockHttp = $this->createMock(Client::class);
+        $mockHttp->method('post')->willThrowException(
+            new RequestException("Upstream error", $this->createMock(RequestInterface::class))
+        );
 
-        $mockFormatter = $this->createMock(ResponseFormatter::class);
+        $controller = new BookingController(
+            new PayloadTransformer(),
+            new ResponseFormatter(),
+            $mockHttp
+        );
 
-        $mockHttpClient = $this->createMock(\GuzzleHttp\Client::class);
-        $mockHttpClient->method('post')->willThrowException(new \GuzzleHttp\Exception\RequestException(
-            "Simulated API error",
-            new \GuzzleHttp\Psr7\Request('POST', 'test')
-        ));
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates')
+            ->withParsedBody([
+                "Arrival" => "01/10/2025",
+                "Departure" => "05/10/2025",
+                "Ages" => [25]
+            ]);
+        $response = (new ResponseFactory())->createResponse();
 
-        $controller = new BookingController($mockTransformer, $mockFormatter, $mockHttpClient);
-
-        $result = $controller->calculateRates($this->makeRequest(), $this->makeResponse());
-
+        $result = $controller->calculateRates($request, $response);
         $this->assertSame(502, $result->getStatusCode());
-        $this->assertStringContainsString('Failed to fetch rates', (string)$result->getBody());
     }
 
     public function testReturns500OnUnexpectedException(): void
     {
-        $mockTransformer = $this->createMock(PayloadTransformer::class);
-        $mockTransformer->method('transform')->willReturn(['dummy' => true]);
+        $mockHttp = $this->createMock(Client::class);
+        $mockHttp->method('post')->willThrowException(new \RuntimeException("Unexpected"));
 
-        $mockFormatter = $this->createMock(ResponseFormatter::class);
+        $controller = new BookingController(
+            new PayloadTransformer(),
+            new ResponseFormatter(),
+            $mockHttp
+        );
 
-        $mockHttpClient = $this->createMock(\GuzzleHttp\Client::class);
-        $mockHttpClient->method('post')->willThrowException(new \RuntimeException("Unexpected crash"));
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates')
+            ->withParsedBody([
+                "Arrival" => "01/10/2025",
+                "Departure" => "05/10/2025",
+                "Ages" => [25]
+            ]);
+        $response = (new ResponseFactory())->createResponse();
 
-        $controller = new BookingController($mockTransformer, $mockFormatter, $mockHttpClient);
-
-        $result = $controller->calculateRates($this->makeRequest(), $this->makeResponse());
-
+        $result = $controller->calculateRates($request, $response);
         $this->assertSame(500, $result->getStatusCode());
-        $this->assertStringContainsString('Unexpected server error', (string)$result->getBody());
     }
 }

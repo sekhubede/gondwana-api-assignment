@@ -1,0 +1,180 @@
+/* Gondwana brand colors */
+:root {
+  --gondwana-dark: #3C2A1E;
+  --gondwana-light: #C69C6D;
+}
+
+.text-gondwana-dark { color: var(--gondwana-dark); }
+.text-gondwana-light { color: var(--gondwana-light); }
+.border-gondwana-light { border-color: var(--gondwana-light); }
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--gondwana-dark);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background-color: black; }
+
+.btn-secondary {
+  background-color: var(--gondwana-light);
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-secondary:hover { background-color: var(--gondwana-dark); }
+
+/* Inputs */
+.input-date,
+.input-guest {
+  border: 1px solid var(--gondwana-light);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--gondwana-dark);
+  width: 100%;
+}
+.input-date:focus,
+.input-guest:focus {
+  outline: none;
+  border-color: var(--gondwana-dark);
+  box-shadow: 0 0 0 2px #c69c6d55;
+}
+
+/* Alerts */
+.alert-success {
+  background: #c69c6d22;
+  border: 1px solid var(--gondwana-light);
+  color: var(--gondwana-dark);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 500;
+}
+.alert-error {
+  background: #c69c6d22;
+  border: 1px solid var(--gondwana-light);
+  color: var(--gondwana-dark);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Availability badges */
+.badge-available {
+  background: var(--gondwana-light);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.badge-unavailable {
+  background: #b91c1c;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Grand total bar */
+.grand-total {
+  position: sticky;
+  bottom: 0;
+  background: var(--gondwana-dark);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.25rem;
+  border-radius: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+.grand-total span {
+  color: var(--gondwana-light);
+  font-weight: 700;
+}
+
+/* Section header */
+#results h2 {
+  text-align: center;
+  color: var(--gondwana-dark);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+#results p.section-desc {
+  text-align: center;
+  color: var(--gondwana-light);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Rate cards */
+.rate-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 22rem;   /* wider */
+  min-height: 22rem;
+  margin: 0 auto 1rem;
+}
+.rate-card-header {
+  background: var(--gondwana-dark);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.rate-card-badge {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.rate-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+  text-align: center;
+  gap: 1rem;
+}
+
+/* Grid layout for cards */
+#rates-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;  /* less spacing */
+  align-items: stretch;
+  justify-items: center;
+}
+
+.input-error {
+  border-color: #b91c1c !important; /* red-700 */
+  box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.2);
+}
+
+.error-text {
+  color: #b91c1c;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}

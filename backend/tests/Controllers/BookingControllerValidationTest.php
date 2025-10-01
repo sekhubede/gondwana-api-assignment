@@ -2,38 +2,112 @@
 namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
+use Slim\Factory\AppFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
 use App\Services\ResponseFormatter;
-use Tests\Helpers\HttpTestHelpers;
+use GuzzleHttp\Client;
 
-/**
- * @covers \App\Controllers\BookingController
- */
 class BookingControllerValidationTest extends TestCase
 {
-    use HttpTestHelpers;
+    private $app;
 
     protected function setUp(): void
     {
-        $this->setUpHttp();
+        $app = AppFactory::create();
+        $transformer = new PayloadTransformer();
+        $formatter   = new ResponseFormatter();
+        $httpClient  = new Client(['base_uri' => 'http://example.com']);
+        $controller  = new BookingController($transformer, $formatter, $httpClient);
+
+        $app->post('/rates', [$controller, 'calculateRates']);
+        $this->app = $app;
+    }
+
+    private function createRequest(array $data)
+    {
+        $requestFactory = new ServerRequestFactory();
+        return $requestFactory->createServerRequest('POST', '/rates')
+            ->withParsedBody($data);
     }
 
     public function testReturns400OnInvalidPayload(): void
     {
-        $mockTransformer = $this->createMock(PayloadTransformer::class);
-        $mockTransformer->method('transform')
-            ->willThrowException(new \InvalidArgumentException("Missing required field: Arrival"));
+        $request = $this->createRequest([]);
+        $response = $this->app->handle($request);
+        $decoded = json_decode((string) $response->getBody(), true);
 
-        $mockFormatter = $this->createMock(ResponseFormatter::class);
-        $mockHttpClient = $this->createMock(\GuzzleHttp\Client::class);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Arrival and departure dates are required (dd/mm/yyyy).', $decoded['message']);
+    }
 
-        $controller = new BookingController($mockTransformer, $mockFormatter, $mockHttpClient);
+    public function testReturns400OnArrivalInThePast(): void
+    {
+        $yesterday = (new \DateTimeImmutable('-1 day'))->format('d/m/Y');
+        $future    = (new \DateTimeImmutable('+5 days'))->format('d/m/Y');
 
-        $result = $controller->calculateRates($this->makeRequest(), $this->makeResponse());
+        $request = $this->createRequest([
+            'Arrival'   => $yesterday,
+            'Departure' => $future,
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
 
-        $this->assertSame(400, $result->getStatusCode());
-        $this->assertStringContainsString('Invalid input', (string) $result->getBody());
-        $this->assertStringContainsString('Missing required field: Arrival', (string) $result->getBody());
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Arrival date cannot be in the past.', $decoded['message']);
+    }
+
+    public function testReturns400OnDepartureBeforeArrival(): void
+    {
+        $inTwoDays = (new \DateTimeImmutable('+2 days'))->format('d/m/Y');
+        $inOneDay  = (new \DateTimeImmutable('+1 day'))->format('d/m/Y');
+
+        $request = $this->createRequest([
+            'Arrival'   => $inTwoDays,
+            'Departure' => $inOneDay,
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Departure date must be after arrival date.', $decoded['message']);
+    }
+
+    public function testReturns400OnDepartureEqualToArrival(): void
+    {
+        $sameDay = (new \DateTimeImmutable('+3 days'))->format('d/m/Y');
+
+        $request = $this->createRequest([
+            'Arrival'   => $sameDay,
+            'Departure' => $sameDay,
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Departure date must be after arrival date.', $decoded['message']);
+    }
+
+    public function testReturns400OnInvalidDepartureFormat(): void
+    {
+        $request = $this->createRequest([
+            'Arrival'   => (new \DateTimeImmutable('+1 day'))->format('d/m/Y'),
+            'Departure' => '2025-10-05', // wrong format (should be d/m/Y)
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Invalid date format for Departure', $decoded['message']);
     }
 }
