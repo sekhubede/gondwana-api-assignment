@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1759301915">
-  <project timestamp="1759301915" name="Clover Coverage">
+<coverage generated="1759302983">
+  <project timestamp="1759302983" name="Clover Coverage">
     <package name="App\Controllers">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Controllers/BookingController.php">
         <class name="App\Controllers\BookingController" namespace="App\Controllers">
@@ -79,23 +79,23 @@
     <package name="App\Services">
       <file name="/workspaces/gondwana-api-assignment/backend/src/Services/PayloadTransformer.php">
         <class name="App\Services\PayloadTransformer" namespace="App\Services">
-          <metrics complexity="13" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="33" coveredstatements="32" elements="34" coveredelements="32"/>
+          <metrics complexity="13" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="33" coveredstatements="33" elements="34" coveredelements="34"/>
         </class>
-        <line num="9" type="method" name="transform" visibility="public" complexity="13" crap="13" count="13"/>
-        <line num="11" type="stmt" count="13"/>
+        <line num="9" type="method" name="transform" visibility="public" complexity="13" crap="13" count="14"/>
+        <line num="11" type="stmt" count="14"/>
         <line num="12" type="stmt" count="1"/>
-        <line num="14" type="stmt" count="12"/>
+        <line num="14" type="stmt" count="13"/>
         <line num="15" type="stmt" count="1"/>
-        <line num="17" type="stmt" count="11"/>
+        <line num="17" type="stmt" count="12"/>
         <line num="18" type="stmt" count="1"/>
-        <line num="20" type="stmt" count="10"/>
+        <line num="20" type="stmt" count="11"/>
         <line num="21" type="stmt" count="1"/>
-        <line num="24" type="stmt" count="9"/>
-        <line num="25" type="stmt" count="9"/>
-        <line num="27" type="stmt" count="9"/>
+        <line num="24" type="stmt" count="10"/>
+        <line num="25" type="stmt" count="10"/>
+        <line num="27" type="stmt" count="10"/>
         <line num="28" type="stmt" count="1"/>
-        <line num="30" type="stmt" count="8"/>
-        <line num="31" type="stmt" count="0"/>
+        <line num="30" type="stmt" count="9"/>
+        <line num="31" type="stmt" count="1"/>
         <line num="34" type="stmt" count="8"/>
         <line num="35" type="stmt" count="8"/>
         <line num="36" type="stmt" count="1"/>
@@ -115,7 +115,7 @@
         <line num="56" type="stmt" count="5"/>
         <line num="57" type="stmt" count="5"/>
         <line num="58" type="stmt" count="5"/>
-        <metrics loc="60" ncloc="60" classes="1" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="33" coveredstatements="32" elements="34" coveredelements="32"/>
+        <metrics loc="60" ncloc="60" classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="33" coveredstatements="33" elements="34" coveredelements="34"/>
       </file>
       <file name="/workspaces/gondwana-api-assignment/backend/src/Services/ResponseFormatter.php">
         <class name="App\Services\ResponseFormatter" namespace="App\Services">
@@ -142,6 +142,6 @@
         <metrics loc="39" ncloc="33" classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" statements="17" coveredstatements="17" elements="18" coveredelements="18"/>
       </file>
     </package>
-    <metrics files="3" loc="210" ncloc="204" classes="3" methods="4" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="115" coveredstatements="112" elements="119" coveredelements="114"/>
+    <metrics files="3" loc="210" ncloc="204" classes="3" methods="4" coveredmethods="3" conditionals="0" coveredconditionals="0" statements="115" coveredstatements="113" elements="119" coveredelements="116"/>
   </project>
 </coverage>

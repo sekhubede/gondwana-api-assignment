@@ -9,10 +9,15 @@ use App\Services\PayloadTransformer;
  */
 class PayloadTransformerHappyPathTest extends TestCase
 {
+    private PayloadTransformer $transformer;
+
+    protected function setUp(): void
+    {
+        $this->transformer = new PayloadTransformer();
+    }
+
     public function testTransformsPayloadCorrectly(): void
     {
-        $transformer = new PayloadTransformer();
-
         $input = [
             "Unit Name" => "Desert Lodge",
             "Arrival"   => "01/10/2025",
@@ -21,7 +26,7 @@ class PayloadTransformerHappyPathTest extends TestCase
             "Ages"      => [30, 12, 18, 17]
         ];
 
-        $result = $transformer->transform($input);
+        $result = $this->transformer->transform($input);
 
         $this->assertSame("2025-10-01", $result["Arrival"]);
         $this->assertSame("2025-10-05", $result["Departure"]);
@@ -37,7 +42,7 @@ class PayloadTransformerHappyPathTest extends TestCase
 
     public function testHandlesDefaultUnitTypeId(): void
     {
-        $result = (new PayloadTransformer())->transform([
+        $result = $this->transformer->transform([
             "Arrival"   => "01/10/2025",
             "Departure" => "05/10/2025",
             "Ages"      => [25]
