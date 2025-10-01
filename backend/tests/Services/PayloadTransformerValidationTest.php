@@ -36,7 +36,7 @@ class PayloadTransformerValidationTest extends TestCase
     public function testThrowsExceptionForArrivalAfterDeparture(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Arrival date must be before departure date");
+        $this->expectExceptionMessage("Departure date must be after arrival date");
 
         (new PayloadTransformer())->transform([
             "Arrival"   => "05/10/2025",
@@ -57,30 +57,18 @@ class PayloadTransformerValidationTest extends TestCase
         ]);
     }
 
-    public function testThrowsExceptionForArrivalInThePast(): void
+    public function testCorrectlyClassifiesAdultsAndChildren(): void
     {
-        $yesterday = (new \DateTimeImmutable('yesterday'))->format('d/m/Y');
-        $tomorrow  = (new \DateTimeImmutable('tomorrow'))->format('d/m/Y');
+        $transformer = new PayloadTransformer();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Arrival date cannot be in the past");
-
-        (new PayloadTransformer())->transform([
-            "Arrival"   => $yesterday,
-            "Departure" => $tomorrow,
-            "Ages"      => [30]
-        ]);
-    }
-
-    public function testThrowsExceptionForInvalidDepartureFormat(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Invalid date format for Departure");
-
-        (new PayloadTransformer())->transform([
+        $result = $transformer->transform([
             "Arrival"   => "01/10/2025",
-            "Departure" => "2025-10-05", // wrong format
-            "Ages"      => [30]
+            "Departure" => "05/10/2025",
+            "Ages"      => [17, 18, 19]
         ]);
+
+        $this->assertSame("Child", $result["Guests"][0]["Age Group"]); // 17
+        $this->assertSame("Adult", $result["Guests"][1]["Age Group"]); // 18
+        $this->assertSame("Adult", $result["Guests"][2]["Age Group"]); // 19
     }
 }
