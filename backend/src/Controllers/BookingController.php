@@ -38,14 +38,14 @@ class BookingController
                 throw new InvalidArgumentException('Arrival and departure dates are required (dd/mm/yyyy).');
             }
 
-            DateTime::getLastErrors();
             $arrival = DateTime::createFromFormat('!d/m/Y', $data['Arrival']);
-            
-            DateTime::getLastErrors();
-            $departure = DateTime::createFromFormat('!d/m/Y', $data['Departure']);
+            if ($arrival === false) {
+                throw new InvalidArgumentException('Invalid date format for Arrival');
+            }
 
-            if ($arrival === false || $departure === false) {
-                throw new InvalidArgumentException('Arrival and departure dates are required (dd/mm/yyyy).');
+            $departure = DateTime::createFromFormat('!d/m/Y', $data['Departure']);
+            if ($departure === false) {
+                throw new InvalidArgumentException('Invalid date format for Departure');
             }
 
             $today = new DateTime('today');
@@ -60,8 +60,7 @@ class BookingController
 
             $normalized  = $this->transformer->transform($data);
             $apiResponse = $this->httpClient->post('Rates.php', ['json' => $normalized]);
-            $body        = $apiResponse->getBody()->getContents();
-            $decoded     = json_decode($body, true);
+            $decoded     = json_decode($apiResponse->getBody()->getContents(), true);
             $clean       = $this->formatter->format($decoded);
 
             $payload = [

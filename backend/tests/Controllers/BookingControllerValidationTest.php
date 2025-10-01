@@ -28,10 +28,8 @@ class BookingControllerValidationTest extends TestCase
     private function createRequest(array $data)
     {
         $requestFactory = new ServerRequestFactory();
-        $request = $requestFactory->createServerRequest('POST', '/rates')
-            ->withHeader('Content-Type', 'application/json');
-        $request->getBody()->write(json_encode($data));
-        return $request;
+        return $requestFactory->createServerRequest('POST', '/rates')
+            ->withParsedBody($data);
     }
 
     public function testReturns400OnInvalidPayload(): void
@@ -42,6 +40,7 @@ class BookingControllerValidationTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertFalse($decoded['success']);
+        $this->assertSame('Arrival and departure dates are required (dd/mm/yyyy).', $decoded['message']);
     }
 
     public function testReturns400OnArrivalInThePast(): void
@@ -59,6 +58,7 @@ class BookingControllerValidationTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertFalse($decoded['success']);
+        $this->assertSame('Arrival date cannot be in the past.', $decoded['message']);
     }
 
     public function testReturns400OnDepartureBeforeArrival(): void
@@ -76,5 +76,23 @@ class BookingControllerValidationTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertFalse($decoded['success']);
+        $this->assertSame('Departure date must be after arrival date.', $decoded['message']);
+    }
+
+    public function testReturns400OnDepartureEqualToArrival(): void
+    {
+        $sameDay = (new \DateTimeImmutable('+3 days'))->format('d/m/Y');
+
+        $request = $this->createRequest([
+            'Arrival'   => $sameDay,
+            'Departure' => $sameDay,
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+        $this->assertSame('Departure date must be after arrival date.', $decoded['message']);
     }
 }
