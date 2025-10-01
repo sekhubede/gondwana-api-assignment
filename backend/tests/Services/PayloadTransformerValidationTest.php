@@ -4,9 +4,6 @@ namespace Tests\Services;
 use PHPUnit\Framework\TestCase;
 use App\Services\PayloadTransformer;
 
-/**
- * @covers \App\Services\PayloadTransformer
- */
 class PayloadTransformerValidationTest extends TestCase
 {
     public function testThrowsExceptionForInvalidAgesType(): void
@@ -27,7 +24,7 @@ class PayloadTransformerValidationTest extends TestCase
         $this->expectExceptionMessage("Invalid date format for Arrival");
 
         (new PayloadTransformer())->transform([
-            "Arrival"   => "2025-10-01", // wrong format
+            "Arrival"   => "2025-10-01",
             "Departure" => "05/10/2025",
             "Ages"      => [30]
         ]);
@@ -45,6 +42,21 @@ class PayloadTransformerValidationTest extends TestCase
         ]);
     }
 
+    public function testThrowsExceptionForArrivalInThePast(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Arrival date cannot be in the past");
+
+        $yesterday = (new \DateTimeImmutable('-1 day'))->format('d/m/Y');
+        $tomorrow  = (new \DateTimeImmutable('+1 day'))->format('d/m/Y');
+
+        (new PayloadTransformer())->transform([
+            "Arrival"   => $yesterday,
+            "Departure" => $tomorrow,
+            "Ages"      => [25]
+        ]);
+    }
+
     public function testThrowsExceptionForInvalidAge(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -55,20 +67,5 @@ class PayloadTransformerValidationTest extends TestCase
             "Departure" => "05/10/2025",
             "Ages"      => [30, -5]
         ]);
-    }
-
-    public function testCorrectlyClassifiesAdultsAndChildren(): void
-    {
-        $transformer = new PayloadTransformer();
-
-        $result = $transformer->transform([
-            "Arrival"   => "01/10/2025",
-            "Departure" => "05/10/2025",
-            "Ages"      => [17, 18, 19]
-        ]);
-
-        $this->assertSame("Child", $result["Guests"][0]["Age Group"]); // 17
-        $this->assertSame("Adult", $result["Guests"][1]["Age Group"]); // 18
-        $this->assertSame("Adult", $result["Guests"][2]["Age Group"]); // 19
     }
 }

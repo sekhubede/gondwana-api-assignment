@@ -34,17 +34,21 @@ class BookingController
         try {
             $data = $request->getParsedBody() ?? [];
 
-            $arrival   = isset($data['Arrival'])
-                ? DateTime::createFromFormat('d/m/Y', $data['Arrival'])
-                : null;
-            $departure = isset($data['Departure'])
-                ? DateTime::createFromFormat('d/m/Y', $data['Departure'])
-                : null;
-            $today     = new DateTime('today');
-
-            if (!$arrival || !$departure) {
+            if (!isset($data['Arrival']) || !isset($data['Departure'])) {
                 throw new InvalidArgumentException('Arrival and departure dates are required (dd/mm/yyyy).');
             }
+
+            DateTime::getLastErrors();
+            $arrival = DateTime::createFromFormat('!d/m/Y', $data['Arrival']);
+            
+            DateTime::getLastErrors();
+            $departure = DateTime::createFromFormat('!d/m/Y', $data['Departure']);
+
+            if ($arrival === false || $departure === false) {
+                throw new InvalidArgumentException('Arrival and departure dates are required (dd/mm/yyyy).');
+            }
+
+            $today = new DateTime('today');
 
             if ($arrival < $today) {
                 throw new InvalidArgumentException('Arrival date cannot be in the past.');

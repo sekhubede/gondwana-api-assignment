@@ -3,69 +3,78 @@ namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
 use Slim\Factory\AppFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
 use App\Controllers\BookingController;
 use App\Services\PayloadTransformer;
 use App\Services\ResponseFormatter;
 use GuzzleHttp\Client;
-use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Factory\ResponseFactory;
 
 class BookingControllerValidationTest extends TestCase
 {
-    private $controller;
+    private $app;
 
     protected function setUp(): void
     {
-        $this->controller = new BookingController(
-            new PayloadTransformer(),
-            new ResponseFormatter(),
-            new Client(['http_errors' => false]) // dummy client
-        );
+        $app = AppFactory::create();
+        $transformer = new PayloadTransformer();
+        $formatter   = new ResponseFormatter();
+        $httpClient  = new Client(['base_uri' => 'http://example.com']);
+        $controller  = new BookingController($transformer, $formatter, $httpClient);
+
+        $app->post('/rates', [$controller, 'calculateRates']);
+        $this->app = $app;
     }
 
-    public function testReturns400WhenDepartureMissing(): void
+    private function createRequest(array $data)
     {
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
-        $request = $request->withParsedBody([
-            "Arrival" => "01/10/2025",
-            "Ages"    => [30]
-        ]);
-
-        $response = (new ResponseFactory())->createResponse();
-        $result = $this->controller->calculateRates($request, $response);
-
-        $this->assertSame(400, $result->getStatusCode());
+        $requestFactory = new ServerRequestFactory();
+        $request = $requestFactory->createServerRequest('POST', '/rates')
+            ->withHeader('Content-Type', 'application/json');
+        $request->getBody()->write(json_encode($data));
+        return $request;
     }
 
-    public function testReturns400WhenArrivalInPast(): void
+    public function testReturns400OnInvalidPayload(): void
     {
-        $yesterday = (new \DateTime('yesterday'))->format('d/m/Y');
+        $request = $this->createRequest([]);
+        $response = $this->app->handle($request);
+        $decoded = json_decode((string) $response->getBody(), true);
 
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
-        $request = $request->withParsedBody([
-            "Arrival"   => $yesterday,
-            "Departure" => "05/10/2025",
-            "Ages"      => [30]
-        ]);
-
-        $response = (new ResponseFactory())->createResponse();
-        $result = $this->controller->calculateRates($request, $response);
-
-        $this->assertSame(400, $result->getStatusCode());
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
     }
 
-    public function testReturns400WhenDepartureBeforeArrival(): void
+    public function testReturns400OnArrivalInThePast(): void
     {
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/rates');
-        $request = $request->withParsedBody([
-            "Arrival"   => "10/10/2025",
-            "Departure" => "05/10/2025",
-            "Ages"      => [30]
+        $yesterday = (new \DateTimeImmutable('-1 day'))->format('d/m/Y');
+        $future    = (new \DateTimeImmutable('+5 days'))->format('d/m/Y');
+
+        $request = $this->createRequest([
+            'Arrival'   => $yesterday,
+            'Departure' => $future,
+            'Ages'      => [25]
         ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
 
-        $response = (new ResponseFactory())->createResponse();
-        $result = $this->controller->calculateRates($request, $response);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
+    }
 
-        $this->assertSame(400, $result->getStatusCode());
+    public function testReturns400OnDepartureBeforeArrival(): void
+    {
+        $inTwoDays = (new \DateTimeImmutable('+2 days'))->format('d/m/Y');
+        $inOneDay  = (new \DateTimeImmutable('+1 day'))->format('d/m/Y');
+
+        $request = $this->createRequest([
+            'Arrival'   => $inTwoDays,
+            'Departure' => $inOneDay,
+            'Ages'      => [25]
+        ]);
+        $response = $this->app->handle($request);
+        $decoded  = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertFalse($decoded['success']);
     }
 }
